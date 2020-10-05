@@ -1,0 +1,30 @@
+extern crate num_traits;
+
+use std::ops;
+use num_traits::Float;
+
+/** (x, y, z) Coordinate representing a point in 3-dimensional space.
+ */
+#[derive(PartialEq, Clone, Debug, Copy)]
+struct Point<T: Float + Copy> {
+    x: T, 
+    y: T, 
+    z: T, 
+}
+
+impl<T: Copy + Float> Point<T> {
+    fn new(x: T, y: T, z: T) -> Self {
+        Self { x, y, z }
+    }
+}
+
+
+#[cfg(test)]
+mod tests {
+    use crate::{Point};
+
+    #[test]
+    fn new_point() {
+        assert_eq!(Point{ x: 1.0, y: 2.0, z: 3.0 }, Point::new(1.0, 2.0, 3.0));
+    }
+}
