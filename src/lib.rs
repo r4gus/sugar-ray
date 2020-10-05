@@ -74,8 +74,42 @@ impl<T: Copy + Float> Vector<T> {
      * This function uses the Pythagoras Theorem to calculate the
      * magnitude of a given vector V = (x,y,z).
      */
-    fn magnitude(&self) -> T {
+    fn mag(&self) -> T {
         (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()    
+    }
+
+    /** Normalize takes an arbitrary vector and converts it into a unit vector (magnitude = 1).
+     *
+     * This can help keeping calculatins anchored relative to a common scale (the unit vector).
+     */
+    fn norm(&mut self) -> &Self {
+        let m = self.mag();
+
+        self.x = self.x / m;
+        self.y = self.y / m;
+        self.z = self.z / m;
+        self
+    }
+
+    /** The dot product (scalar product) of two vectors.
+     *
+     * The dot product describes the angle between two vectors.
+     * 
+     * - Given two unit vectors, a dot product of 1 means the vectors are identical.
+     * - -1 means they point in opposite directions
+     */
+    fn dot(&self, vec: &Self) -> T {
+        self.x * vec.x + self.y * vec.y + self.z * vec.z 
+    }
+
+    /** The cross product of two vectors.
+     *
+     * Calculates a new vector that is prependicular to both of the original vectors.
+     */
+    fn cross(&self, vec: &Self) -> Self {
+        Vector::new(self.y * vec.z - self.z * vec.y,
+                    self.z * vec.x - self.x * vec.z,
+                    self.x * vec.y - self.y * vec.x)
     }
 }
 
@@ -206,26 +240,59 @@ mod tests {
 
     #[test]
     fn magnitude_1() {
-        assert_eq!(1.0, Vector::new(1.0, 0.0, 0.0).magnitude());
+        assert_eq!(1.0, Vector::new(1.0, 0.0, 0.0).mag());
     }
 
     #[test]
     fn magnitude_2() {
-        assert_eq!(1.0, Vector::new(0.0, 1.0, 0.0).magnitude());
+        assert_eq!(1.0, Vector::new(0.0, 1.0, 0.0).mag());
     }
 
     #[test]
     fn magnitude_3() {
-        assert_eq!(1.0, Vector::new(0.0, 0.0, 1.0).magnitude());
+        assert_eq!(1.0, Vector::new(0.0, 0.0, 1.0).mag());
     }
 
     #[test]
     fn magnitude_4() {
-        assert_eq!((14.0_f64).sqrt(), Vector::new(1.0, 2.0, 3.0).magnitude());
+        assert_eq!((14.0_f64).sqrt(), Vector::new(1.0, 2.0, 3.0).mag());
     }
 
     #[test]
     fn magnitude_5() {
-        assert_eq!((14.0_f64).sqrt(), Vector::new(-1.0, -2.0, -3.0).magnitude());
+        assert_eq!((14.0_f64).sqrt(), Vector::new(-1.0, -2.0, -3.0).mag());
+    }
+
+    #[test]
+    fn normalizing_vector_1() {
+        let mut v = Vector::new(4.0, 0.0, 0.0);
+        v.norm();
+        assert_eq!(Vector::new(1.0, 0.0, 0.0), v);
+    }
+
+    #[test]
+    fn normalizing_vector_2() {
+        let mut v = Vector::new(1.0, 2.0, 3.0);
+        v.norm();
+        assert_eq!(Vector::new(1.0 / (14.0_f64).sqrt(), 2.0 / (14.0_f64).sqrt(), 3.0 / (14.0_f64).sqrt()), v);
+    }
+
+    #[test]
+    fn magnitude_of_normalized_vector() {
+        assert_eq!(1.0, Vector::new(1.0, 2.0, 3.0).norm().mag());
+    }
+
+    #[test]
+    fn dot_product_of_two_vectors() {
+        assert_eq!(20.0, Vector::new(1.0, 2.0, 3.0).dot(&Vector::new(2.0, 3.0, 4.0))); 
+    }
+
+    #[test]
+    fn cross_product_of_two_vectors() {
+        let v1 = Vector::new(1.0, 2.0, 3.0);
+        let v2 = Vector::new(2.0, 3.0, 4.0);
+
+        assert_eq!(Vector::new(-1.0, 2.0, -1.0), v1.cross(&v2));
+        assert_eq!(Vector::new(1.0, -2.0, 1.0), v2.cross(&v1));
     }
 }
