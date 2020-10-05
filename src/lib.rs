@@ -29,6 +29,7 @@ impl<T: Copy + Float> ops::Add<Vector<T>> for Point<T> {
     fn add(self, rhs: Vector<T>) -> Self {
         Point::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
     }
+
 }
 
 /** Subtract a point P from a point Q to get a vector V = Q - P.
@@ -66,6 +67,15 @@ struct Vector<T: Float + Copy> {
 impl<T: Copy + Float> Vector<T> {
     fn new(x: T, y: T, z: T) -> Self {
         Self { x, y, z }
+    }
+    
+    /** Magnitude (length) of a vector from origin P to Q.
+     *
+     * This function uses the Pythagoras Theorem to calculate the
+     * magnitude of a given vector V = (x,y,z).
+     */
+    fn magnitude(&self) -> T {
+        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()    
     }
 }
 
@@ -192,5 +202,30 @@ mod tests {
     #[test]
     fn divide_vector_by_scalar() {
         assert_eq!(Vector::new(0.5, -1.0, 1.5), Vector::new(1.0, -2.0, 3.0) / 2.0);
+    }
+
+    #[test]
+    fn magnitude_1() {
+        assert_eq!(1.0, Vector::new(1.0, 0.0, 0.0).magnitude());
+    }
+
+    #[test]
+    fn magnitude_2() {
+        assert_eq!(1.0, Vector::new(0.0, 1.0, 0.0).magnitude());
+    }
+
+    #[test]
+    fn magnitude_3() {
+        assert_eq!(1.0, Vector::new(0.0, 0.0, 1.0).magnitude());
+    }
+
+    #[test]
+    fn magnitude_4() {
+        assert_eq!((14.0_f64).sqrt(), Vector::new(1.0, 2.0, 3.0).magnitude());
+    }
+
+    #[test]
+    fn magnitude_5() {
+        assert_eq!((14.0_f64).sqrt(), Vector::new(-1.0, -2.0, -3.0).magnitude());
     }
 }
