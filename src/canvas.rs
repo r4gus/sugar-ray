@@ -19,6 +19,24 @@ impl<T: Float> Canvas<T> {
             pixels: vec![vec![Color::<T>::new(Zero::zero(),Zero::zero(),Zero::zero()); width]; height] 
         }
     }
+    
+    /** Set color for the given pixel.
+     */
+    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color<T>) {
+        assert!(height < self.pixels.len());  
+        assert!(width < self.pixels[height].len());
+
+        self.pixels[height][width] = color;
+    }
+    
+    /** Get color of specified pixel.
+     */
+    pub fn pixel_at(&self, width: usize, height: usize) -> Color<T> {
+        assert!(height < self.pixels.len());  
+        assert!(width < self.pixels[height].len());
+
+        self.pixels[height][width]
+    }
 }
 
 impl<T: Float + cmp::PartialEq> cmp::PartialEq for Canvas<T> {
@@ -89,6 +107,20 @@ mod tests {
         };
 
         assert_ne!(c, Canvas::new(10, 20));
+    }
+
+    #[test]
+    fn writing_pixels_to_a_canvas() {
+        let mut c = Canvas::<f64>::new(10, 10); 
+        c.write_pixel(6, 4, Color::new(1.0, 0.0, 0.0));
+        assert_eq!(Color::<f64>::new(1.0, 0.0, 0.0), c.pixels[4][6]);
+    }
+
+    #[test]
+    fn pixel_at_test() {
+        let mut c = Canvas::<f64>::new(10, 10); 
+        c.write_pixel(6, 4, Color::new(1.0, 0.0, 0.0));
+        assert_eq!(Color::<f64>::new(1.0, 0.0, 0.0), c.pixel_at(6, 4));
     }
 }
 
