@@ -1,10 +1,9 @@
 use std::{
     ops, 
     cmp,
-    f32,
-    f64,
 };
 use num_traits::Float;
+use crate::ppm::PpmColor;
 
 /** A RGB color structure.
  *
@@ -30,6 +29,26 @@ pub struct Color<T: Float + Copy> {
 impl<T: Copy + Float> Color<T> {
     pub fn new(red: T, green: T, blue: T) -> Self {
         Color { r: red, g: green, b: blue }
+    }
+}
+
+impl PpmColor for Color<f32> {
+    fn to_ppm_color(&self) -> String {
+        const MAX: f32 = 255.0;
+
+        let normalize = |i: f32| -> f32
+            {   
+                if i < 0.0 {
+                    0.0
+                } else if i > 1.0 {
+                    MAX
+                } else {
+                    (i * MAX).ceil()
+                }
+            };
+
+        
+        format!("{} {} {}", normalize(self.r), normalize(self.g), normalize(self.b))
     }
 }
 
@@ -84,6 +103,7 @@ impl<T: Copy + Float> cmp::PartialEq for Color<T> {
 #[cfg(test)]
 mod tests {
     use crate::canvas::color::{Color};
+    use crate::ppm::PpmColor;
 
     #[test]
     fn new_color() {
@@ -108,5 +128,20 @@ mod tests {
     #[test]
     fn multiply_colors() {
         assert_eq!(Color::new(0.9, 0.2, 0.04), Color::new(1.0, 0.2, 0.4) * Color::new(0.9, 1.0, 0.1));
+    }
+
+    #[test]
+    fn to_ppm_color_tuple() {
+        assert_eq!(String::from("255 0 128"), Color::new(1.0, 0.0, 0.5).to_ppm_color());
+    }
+
+    #[test]
+    fn to_ppm_color_tuple_2() {
+        assert_eq!(String::from("255 204 153"), Color::new(1.0, 0.8, 0.6).to_ppm_color());
+    }
+
+    #[test]
+    fn to_ppm_color_tuple_3() {
+        assert_eq!(String::from("255 128 0"), Color::new(1.5, 0.5, -0.5).to_ppm_color());
     }
 }

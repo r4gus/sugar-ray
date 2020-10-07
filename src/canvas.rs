@@ -1,12 +1,17 @@
 pub mod color;
 
 use color::Color;
+use super::ppm::{Ppm, PpmColor};
+
 use num_traits::{Float, Zero};
 use std::cmp;
+
 
 #[derive(Debug)]
 pub struct Canvas<T: Float + Copy> {
     pixels: Vec<Vec<Color<T>>>,
+    width: usize,
+    height: usize,
 }
 
 impl<T: Float> Canvas<T> {
@@ -16,7 +21,9 @@ impl<T: Float> Canvas<T> {
      */
     pub fn new(width: usize, height: usize) -> Self {
         Canvas { 
-            pixels: vec![vec![Color::<T>::new(Zero::zero(),Zero::zero(),Zero::zero()); width]; height] 
+            pixels: vec![vec![Color::<T>::new(Zero::zero(),Zero::zero(),Zero::zero()); width]; height],
+            width,
+            height
         }
     }
     
@@ -36,6 +43,36 @@ impl<T: Float> Canvas<T> {
         assert!(width < self.pixels[height].len());
 
         self.pixels[height][width]
+    }
+}
+
+impl Ppm for Canvas<f32> {
+    fn to_ppm(&self) -> String {
+        const PIXELS_PER_LINE: u32 = 5;
+        let mut pixelcount: u32 = PIXELS_PER_LINE;
+
+        let mut ppm = format!("P3\n{} {}\n255\n", self.width, self.height);
+        
+        for rows in &self.pixels {
+            for pixel in rows {
+                
+                pixelcount -= 1;
+                ppm.push_str(&pixel.to_ppm_color()); // convert pixel to a (r, g, b) color string
+
+                if pixelcount == 0 {
+                    pixelcount = PIXELS_PER_LINE;
+                    ppm.push_str("\n");
+                } else {
+                    ppm.push_str(" ");
+                }
+            }
+        }
+        
+        // last element hast to be a new line
+        ppm.pop();  // removes either newline or space
+        ppm.push('\n');
+
+        ppm
     }
 }
 
@@ -72,11 +109,14 @@ mod tests {
         Canvas,
         color::Color
     };
+    use crate::ppm::Ppm;
 
     #[test]
     fn creating_a_canvas() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 20]
+            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 20],
+            width: 10,
+            height: 20
         };
 
         assert_eq!(c, Canvas::new(10, 20));
@@ -85,7 +125,9 @@ mod tests {
     #[test]
     fn rows_not_equal() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 19]
+            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 19],
+            width: 10,
+            height: 19
         };
 
         assert_ne!(c, Canvas::new(10, 20));
@@ -94,7 +136,9 @@ mod tests {
     #[test]
     fn widths_not_equal() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 9]; 20]
+            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 9]; 20],
+            width: 9,
+            height: 20,
         };
 
         assert_ne!(c, Canvas::new(10, 20));
@@ -103,7 +147,9 @@ mod tests {
     #[test]
     fn not_initial_color_black() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(1.0, 0.0, 0.0); 10]; 20]
+            pixels: vec![vec![Color::<f64>::new(1.0, 0.0, 0.0); 10]; 20],
+            width: 10,
+            height: 20
         };
 
         assert_ne!(c, Canvas::new(10, 20));
@@ -121,6 +167,28 @@ mod tests {
         let mut c = Canvas::<f64>::new(10, 10); 
         c.write_pixel(6, 4, Color::new(1.0, 0.0, 0.0));
         assert_eq!(Color::<f64>::new(1.0, 0.0, 0.0), c.pixel_at(6, 4));
+    }
+
+    #[test]
+    fn constructing_the_ppm_header() {
+        let expected = String::from("P3\n5 3\n255\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n"); 
+        assert_eq!(expected, Canvas::<f32>::new(5, 3).to_ppm());
+    }
+    
+    #[test]
+    fn constructing_the_pixel_data() {
+        let expected = String::from("P3\n5 3\n255\n255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n"); 
+        let mut canvas = Canvas::<f32>::new(5, 3);
+        canvas.write_pixel(0, 0, Color::new(1.5, 0.0, 0.0));
+        canvas.write_pixel(2, 1, Color::new(0.0, 0.5, 0.0));
+        canvas.write_pixel(4, 2, Color::new(-0.5, 0.0, 1.0));
+
+        assert_eq!(expected, canvas.to_ppm());
+    }
+
+    #[test]
+    fn ends_with_new_line() {
+        assert_eq!('\n', Canvas::new(5,3).to_ppm().pop().unwrap()); 
     }
 }
 
