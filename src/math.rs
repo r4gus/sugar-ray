@@ -20,15 +20,6 @@ mod tests {
         vector::Vector
     };
 
-    #[test]
-    fn new_point() {
-        assert_eq!(Point{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Point::new(1.0, 2.0, 3.0));
-    }
-
-    #[test]
-    fn new_vector() {
-        assert_eq!(Vector{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Vector::new(1.0, 2.0, 3.0));
-    }
 
     #[test]
     fn test_point_equality() {
