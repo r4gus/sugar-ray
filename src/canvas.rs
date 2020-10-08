@@ -3,25 +3,24 @@ pub mod color;
 use color::Color;
 use super::ppm::{Ppm, PpmColor};
 
-use num_traits::{Float, Zero};
 use std::cmp;
 
 
 #[derive(Debug)]
-pub struct Canvas<T: Float + Copy> {
-    pixels: Vec<Vec<Color<T>>>,
+pub struct Canvas {
+    pixels: Vec<Vec<Color>>,
     width: usize,
     height: usize,
 }
 
-impl<T: Float> Canvas<T> {
+impl Canvas {
     /** Create a new Canvas with width and height.
      *
      * All pixels are initialized to black (0, 0, 0).
      */
     pub fn new(width: usize, height: usize) -> Self {
         Canvas { 
-            pixels: vec![vec![Color::<T>::new(Zero::zero(),Zero::zero(),Zero::zero()); width]; height],
+            pixels: vec![vec![Color::new(0.0,0.0,0.0); width]; height],
             width,
             height
         }
@@ -29,7 +28,7 @@ impl<T: Float> Canvas<T> {
     
     /** Set color for the given pixel.
      */
-    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color<T>) {
+    pub fn write_pixel(&mut self, width: usize, height: usize, color: Color) {
         assert!(height < self.pixels.len());  
         assert!(width < self.pixels[height].len());
 
@@ -38,7 +37,7 @@ impl<T: Float> Canvas<T> {
     
     /** Get color of specified pixel.
      */
-    pub fn pixel_at(&self, width: usize, height: usize) -> Color<T> {
+    pub fn pixel_at(&self, width: usize, height: usize) -> Color {
         assert!(height < self.pixels.len());  
         assert!(width < self.pixels[height].len());
 
@@ -46,7 +45,7 @@ impl<T: Float> Canvas<T> {
     }
 }
 
-impl Ppm for Canvas<f32> {
+impl Ppm for Canvas {
     fn to_ppm(&self) -> String {
         const PIXELS_PER_LINE: u32 = 5;
         let mut pixelcount: u32 = PIXELS_PER_LINE;
@@ -76,7 +75,7 @@ impl Ppm for Canvas<f32> {
     }
 }
 
-impl<T: Float + cmp::PartialEq> cmp::PartialEq for Canvas<T> {
+impl cmp::PartialEq for Canvas {
     fn eq(&self, other: &Self) -> bool {
         // Number of rows doesn't match
         if self.pixels.len() != other.pixels.len() {
@@ -114,7 +113,7 @@ mod tests {
     #[test]
     fn creating_a_canvas() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 20],
+            pixels: vec![vec![Color::new(0.0, 0.0, 0.0); 10]; 20],
             width: 10,
             height: 20
         };
@@ -125,7 +124,7 @@ mod tests {
     #[test]
     fn rows_not_equal() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 10]; 19],
+            pixels: vec![vec![Color::new(0.0, 0.0, 0.0); 10]; 19],
             width: 10,
             height: 19
         };
@@ -136,7 +135,7 @@ mod tests {
     #[test]
     fn widths_not_equal() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(0.0, 0.0, 0.0); 9]; 20],
+            pixels: vec![vec![Color::new(0.0, 0.0, 0.0); 9]; 20],
             width: 9,
             height: 20,
         };
@@ -147,7 +146,7 @@ mod tests {
     #[test]
     fn not_initial_color_black() {
         let c = Canvas { 
-            pixels: vec![vec![Color::<f64>::new(1.0, 0.0, 0.0); 10]; 20],
+            pixels: vec![vec![Color::new(1.0, 0.0, 0.0); 10]; 20],
             width: 10,
             height: 20
         };
@@ -157,28 +156,28 @@ mod tests {
 
     #[test]
     fn writing_pixels_to_a_canvas() {
-        let mut c = Canvas::<f64>::new(10, 10); 
+        let mut c = Canvas::new(10, 10); 
         c.write_pixel(6, 4, Color::new(1.0, 0.0, 0.0));
-        assert_eq!(Color::<f64>::new(1.0, 0.0, 0.0), c.pixels[4][6]);
+        assert_eq!(Color::new(1.0, 0.0, 0.0), c.pixels[4][6]);
     }
 
     #[test]
     fn pixel_at_test() {
-        let mut c = Canvas::<f64>::new(10, 10); 
+        let mut c = Canvas::new(10, 10); 
         c.write_pixel(6, 4, Color::new(1.0, 0.0, 0.0));
-        assert_eq!(Color::<f64>::new(1.0, 0.0, 0.0), c.pixel_at(6, 4));
+        assert_eq!(Color::new(1.0, 0.0, 0.0), c.pixel_at(6, 4));
     }
 
     #[test]
     fn constructing_the_ppm_header() {
         let expected = String::from("P3\n5 3\n255\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n"); 
-        assert_eq!(expected, Canvas::<f32>::new(5, 3).to_ppm());
+        assert_eq!(expected, Canvas::new(5, 3).to_ppm());
     }
     
     #[test]
     fn constructing_the_pixel_data() {
         let expected = String::from("P3\n5 3\n255\n255 0 0 0 0 0 0 0 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 128 0 0 0 0 0 0 0\n0 0 0 0 0 0 0 0 0 0 0 0 0 0 255\n"); 
-        let mut canvas = Canvas::<f32>::new(5, 3);
+        let mut canvas = Canvas::new(5, 3);
         canvas.write_pixel(0, 0, Color::new(1.5, 0.0, 0.0));
         canvas.write_pixel(2, 1, Color::new(0.0, 0.5, 0.0));
         canvas.write_pixel(4, 2, Color::new(-0.5, 0.0, 1.0));

@@ -1,23 +1,14 @@
 pub mod point;
 pub mod vector;
+pub mod matrix;
 
-
-/* *##############################################################################
- *                               MATRIX ( 4 x 4 )
- * ############################################################################## */
-
-pub struct Matrix {
-    m: Vec<Vec<f64>>,
-    rows: usize,
-    cols: usize,
-}
-/* TODO: make a makro to generate matrixes easyly */
 
 #[cfg(test)]
 mod tests {
     use crate::math::{
         point::Point, 
-        vector::Vector
+        vector::Vector,
+        matrix::Matrix,
     };
 
 
@@ -133,4 +124,128 @@ mod tests {
         assert_eq!(Vector::new(-1.0, 2.0, -1.0), v1.cross(&v2));
         assert_eq!(Vector::new(1.0, -2.0, 1.0), v2.cross(&v1));
     }
+
+    #[test]
+    fn constructing_a_4x4_matrix() {
+        let m = Matrix::new(4, 4);
+        assert_eq!(4, m.rows());
+        assert_eq!(4, m.cols());
+    }
+
+    #[test]
+    fn constructing_a_4x4_matrix_from_vector() {
+        let m = Matrix::from_vec(vec![vec![1.0,2.0,3.0,4.0],
+                                 vec![5.5,6.5,7.5,8.5],
+                                 vec![9.0,10.0,11.0,12.0],
+                                 vec![13.5, 14.5, 15.5, 16.5]]).unwrap();
+        assert_eq!(1.0, m[0][0]);
+        assert_eq!(4.0, m[0][3]);
+        assert_eq!(5.5, m[1][0]);
+        assert_eq!(7.5, m[1][2]);
+        assert_eq!(11.0, m[2][2]);
+        assert_eq!(13.5, m[3][0]);
+        assert_eq!(15.5, m[3][2]);
+    }
+
+    #[test]
+    fn try_constructing_a_empty_matrix() {
+        let m = Matrix::from_vec(Vec::<Vec<f64>>::new());
+        assert!(m.is_none());
+    }
+
+    #[test]
+    fn try_constructing_a_matrix_with_different_row_length() {
+        let m = Matrix::from_vec(vec![vec![1.0,2.0,3.0,4.0],
+                                 vec![5.5,6.5,7.5]]);
+        assert!(m.is_none());
+    }
+    
+    #[test]
+    fn assigning_values_to_a_2x2_matrix() {
+        let mut m = Matrix::new(2, 2);
+        m[0][0] = 1.0;
+        m[0][1] = 2.0;
+        m[1][0] = 5.5;
+        m[1][1] = 6.5;
+
+        assert_eq!(1.0, m[0][0]);
+        assert_eq!(2.0, m[0][1]);
+        assert_eq!(5.5, m[1][0]);
+        assert_eq!(6.5, m[1][1]);
+    }
+
+    #[test]
+    fn constructing_a_2x2_matrix() {
+        let m = Matrix::from_vec(vec![vec![-3.0, 5.0], vec![1.0, -2.0]]).unwrap();
+
+        assert_eq!(-3.0, m[0][0]);
+        assert_eq!(5.0, m[0][1]);
+        assert_eq!(1.0, m[1][0]);
+        assert_eq!(-2.0, m[1][1]);
+    }
+
+    #[test]
+    fn constructing_a_3x3_matrix() {
+        let m = Matrix::from_vec(vec![vec![-3.0, 5.0, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.0, 1.0]]).unwrap();
+
+        assert_eq!(-3.0, m[0][0]);
+        assert_eq!(-2.0, m[1][1]);
+        assert_eq!(1.0, m[2][2]);
+    }
+
+    #[test]
+    fn comparing_two_equal_matrices() {
+        let m1 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0]]).unwrap();
+
+        assert_eq!(true, m1 == m2);
+    }
+
+    #[test]
+    fn comparing_two_unequal_matrices() {
+        let m1 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![-2.99999, 1.6, 0.0], 
+                                 vec![1.0, -3.0, -7.0],
+                                 vec![0.0, 1.5, 1.00001]]).unwrap();
+
+        assert_eq!(false, m1 == m2);
+    }
+
+    #[test]
+    fn comparing_two_unequal_matrices_2() {
+        let m1 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![-3.0, 0.0], 
+                                 vec![1.0, -7.0],
+                                 vec![0.0, 1.0]]).unwrap();
+
+        assert_eq!(false, m1 == m2);
+    }
+
+    #[test]
+    fn comparing_two_unequal_matrices_3() {
+        let m1 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![-3.0, 1.6, 0.0], 
+                                 vec![1.0, -2.0, -7.0],
+                                 vec![0.0, 1.5, 1.0],
+                                 vec![1.0,2.0,3.0]]).unwrap();
+
+        assert_eq!(true, m1 != m2);
+    }
+
 }

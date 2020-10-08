@@ -2,7 +2,6 @@ use std::{
     ops, 
     cmp,
 };
-use num_traits::Float;
 use crate::ppm::PpmColor;
 
 /** A RGB color structure.
@@ -20,19 +19,19 @@ use crate::ppm::PpmColor;
  * blue = (0,0,1)
  */
 #[derive(Debug, Clone, Copy)]
-pub struct Color<T: Float + Copy> {
-    r: T,
-    g: T,
-    b: T,
+pub struct Color {
+    r: f32,
+    g: f32,
+    b: f32,
 }
 
-impl<T: Copy + Float> Color<T> {
-    pub fn new(red: T, green: T, blue: T) -> Self {
+impl Color {
+    pub fn new(red: f32, green: f32, blue: f32) -> Self {
         Color { r: red, g: green, b: blue }
     }
 }
 
-impl PpmColor for Color<f32> {
+impl PpmColor for Color {
     fn to_ppm_color(&self) -> String {
         const MAX: f32 = 255.0;
 
@@ -54,7 +53,7 @@ impl PpmColor for Color<f32> {
 
 /** Add two colors.
  */
-impl<T: Copy + Float> ops::Add<Color<T>> for Color<T> {
+impl ops::Add<Color> for Color {
     type Output = Self;
 
     fn add(self, rhs: Self) -> Self {
@@ -64,7 +63,7 @@ impl<T: Copy + Float> ops::Add<Color<T>> for Color<T> {
 
 /** Subtract a color from another.
  */
-impl<T: Copy + Float> ops::Sub<Color<T>> for Color<T> {
+impl ops::Sub<Color> for Color {
     type Output = Self;
 
     fn sub(self, rhs: Self) -> Self {
@@ -74,17 +73,17 @@ impl<T: Copy + Float> ops::Sub<Color<T>> for Color<T> {
 
 /** Multiply a color by a scalar.
  */
-impl<T: Copy + Float> ops::Mul<T> for Color<T> {
+impl ops::Mul<f32> for Color {
     type Output = Self;
 
-    fn mul(self, rhs: T) -> Self {
+    fn mul(self, rhs: f32) -> Self {
         Self::new(self.r * rhs, self.g * rhs, self.b * rhs)
     }
 }
 
 /** Blend two colors using the Hadamar Product.
  */
-impl<T: Copy + Float> ops::Mul<Color<T>> for Color<T> {
+impl ops::Mul<Color> for Color {
     type Output = Self;
 
     fn mul(self, rhs: Self) -> Self {
@@ -92,11 +91,11 @@ impl<T: Copy + Float> ops::Mul<Color<T>> for Color<T> {
     }
 }
 
-impl<T: Copy + Float> cmp::PartialEq for Color<T> {
+impl cmp::PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
-        ((self.r - other.r).abs() < Float::epsilon() ) &&
-        ((self.g - other.g).abs() < Float::epsilon() ) &&
-        ((self.b - other.b).abs() < Float::epsilon() )
+        ((self.r - other.r).abs() <= f32::EPSILON ) &&
+        ((self.g - other.g).abs() <= f32::EPSILON ) &&
+        ((self.b - other.b).abs() <= f32::EPSILON )
     }
 }
 
