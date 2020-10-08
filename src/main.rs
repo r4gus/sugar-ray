@@ -1,4 +1,4 @@
-use sugar_ray::math::{Point, Vector};
+use sugar_ray::math::{point::Point, vector::Vector};
 use sugar_ray::canvas::{
     *,
     color::*,
@@ -10,13 +10,13 @@ use std::time::Duration;
 use std::io::prelude::*;
 
 struct Projectile {
-    pub position: Point<f64>,
-    pub velocity: Vector<f64>,
+    pub position: Point,
+    pub velocity: Vector,
 }
 
 struct Environment {
-    pub gravity: Vector<f64>,
-    pub wind: Vector<f64>,
+    pub gravity: Vector,
+    pub wind: Vector,
 }
 
 fn tick<'a>(env:&Environment, proj: &'a mut Projectile) -> &'a Projectile {
@@ -34,9 +34,9 @@ fn main() -> std::io::Result<()> {
     let mut canvas = Canvas::<f32>::new(900, 550);
     
 
-    while proj.position.y > 0.0  {
+    while proj.position.y() > 0.0  {
         tick(&env, &mut proj);
-        canvas.write_pixel(proj.position.x as usize, 549 - (proj.position.y as usize), Color::new(1.0, 0.0, 0.0));
+        canvas.write_pixel(proj.position.x() as usize, 549 - (proj.position.y() as usize), Color::new(1.0, 0.0, 0.0));
     }
 
     let mut f = std::fs::File::create("canvas.ppm")?;

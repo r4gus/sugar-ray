@@ -1,204 +1,33 @@
-use std::ops;
-use num_traits::Float;
+pub mod point;
+pub mod vector;
+
 
 /* *##############################################################################
- *                                POINT
+ *                               MATRIX ( 4 x 4 )
  * ############################################################################## */
 
-/** (x, y, z) Coordinate representing a point in 3-dimensional space.
- */
-#[derive(PartialEq, Clone, Debug, Copy)]
-pub struct Point<T: Float + Copy> {
-    pub x: T, 
-    pub y: T, 
-    pub z: T, 
+pub struct Matrix {
+    m: Vec<Vec<f64>>,
+    rows: usize,
+    cols: usize,
 }
-
-impl<T: Copy + Float> Point<T> {
-    pub fn new(x: T, y: T, z: T) -> Self {
-        Self { x, y, z }
-    }
-}
-
-/** Get the displacement Q of a point P in the direction of and by magnitude of the vector V = Q - P.
- * 
- * Add a vector V = (x, y, z) to a point P = (x, y, z) to get it's displacement Q.
- *
- */
-impl<T: Copy + Float> ops::Add<Vector<T>> for Point<T> {
-    type Output = Self;
-
-    fn add(self, rhs: Vector<T>) -> Self {
-        Point::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
-    }
-
-}
-
-/** Subtract a point P from a point Q to get a vector V = Q - P.
- */
-impl<T: Copy + Float> ops::Sub<Point<T>> for Point<T> {
-    type Output = Vector<T>;
-
-    fn sub(self, rhs: Self) -> Vector<T> {
-        Vector::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
-    }
-}
-
-/** Subtract a vector V from a point Q to get it's origin P.
- *
- * V = Q - P
- * P = Q - V
- */
-impl<T: Copy + Float> ops::Sub<Vector<T>> for Point<T> {
-    type Output = Self;
-    
-    fn sub(self, rhs: Vector<T>) -> Self {
-        Point::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
-    }
-}
-
-/* *##############################################################################
- *                               VECTOR 
- * ############################################################################## */
-
-/** Vector representing magnitude and direction in 3-dimensional space.
- */
-#[derive(PartialEq, Clone, Debug, Copy)]
-pub struct Vector<T: Float + Copy> {
-    x: T, 
-    y: T, 
-    z: T, 
-}
-
-impl<T: Copy + Float> Vector<T> {
-    pub fn new(x: T, y: T, z: T) -> Self {
-        Self { x, y, z }
-    }
-    
-    /** Magnitude (length) of a vector from origin P to Q.
-     *
-     * This function uses the Pythagoras Theorem to calculate the
-     * magnitude of a given vector V = (x,y,z).
-     */
-    pub fn mag(&self) -> T {
-        (self.x.powi(2) + self.y.powi(2) + self.z.powi(2)).sqrt()    
-    }
-
-    /** Normalize takes an arbitrary vector and converts it into a unit vector (magnitude = 1).
-     *
-     * This can help keeping calculatins anchored relative to a common scale (the unit vector).
-     */
-    pub fn norm(&mut self) -> &Self {
-        let m = self.mag();
-
-        self.x = self.x / m;
-        self.y = self.y / m;
-        self.z = self.z / m;
-        self
-    }
-
-    /** Normalize takes an arbitrary vector and converts it into a unit vector (magnitude = 1).
-     *
-     * This can help keeping calculatins anchored relative to a common scale (the unit vector).
-     */
-    pub fn norm_cpy(&self) -> Self {
-        let m = self.mag();
-
-        Self {  x: self.x / m,
-                y: self.y / m,
-                z: self.z / m }
-    }
-
-    /** The dot product (scalar product) of two vectors.
-     *
-     * The dot product describes the angle between two vectors.
-     * 
-     * - Given two unit vectors, a dot product of 1 means the vectors are identical.
-     * - -1 means they point in opposite directions
-     */
-    pub fn dot(&self, vec: &Self) -> T {
-        self.x * vec.x + self.y * vec.y + self.z * vec.z 
-    }
-
-    /** The cross product of two vectors.
-     *
-     * Calculates a new vector that is prependicular to both of the original vectors.
-     */
-    pub fn cross(&self, vec: &Self) -> Self {
-        Vector::new(self.y * vec.z - self.z * vec.y,
-                    self.z * vec.x - self.x * vec.z,
-                    self.x * vec.y - self.y * vec.x)
-    }
-}
-
-/** The sum of two vectors.
- */
-impl<T: Copy + Float> ops::Add<Vector<T>> for Vector<T> {
-    type Output = Self;
-
-    fn add(self, rhs: Self) -> Self {
-        Vector::new(self.x + rhs.x, self.y + rhs.y, self.z + rhs.z)
-    }
-}
-
-/** Subtract a vectro V1 from a vector V2.
- */
-impl<T: Copy + Float> ops::Sub<Vector<T>> for Vector<T> {
-    type Output = Self;
-    
-    fn sub(self, rhs: Self) -> Self {
-        Vector::new(self.x - rhs.x, self.y - rhs.y, self.z - rhs.z)
-    }
-}
-
-/** Negate a vector V.
- *
- * Every positive scalar becomes negative and vice versa.
- */
-impl<T: Copy + Float> ops::Neg for Vector<T> {
-    type Output = Self;
-
-    fn neg(self) -> Self {
-        Vector::new(-self.x, -self.y, -self.z)
-    }
-}
-
-
-/** Multiply a scalar with a Vector.
- */
-impl<T: Copy + Float> ops::Mul<T> for Vector<T> {
-    type Output = Self;
-
-    fn mul(self, rhs: T) -> Self {
-        Vector::new(self.x * rhs, self.y * rhs, self.z * rhs)
-    }
-}
-
-/** Divide a vector by a scalar.
- */
-impl<T: Copy + Float> ops::Div<T> for Vector<T> {
-    type Output = Self;
-
-    fn div(self, rhs: T) -> Self {
-        Vector::new(self.x / rhs, self.y / rhs, self.z / rhs)
-    }
-}
-
+/* TODO: make a makro to generate matrixes easyly */
 
 #[cfg(test)]
 mod tests {
-    use crate::math::{Point, Vector};
+    use crate::math::{
+        point::Point, 
+        vector::Vector
+    };
 
     #[test]
     fn new_point() {
-        assert_eq!(Point{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Point::<f64>::new(1.0, 2.0, 3.0));
-        assert_eq!(Point{x: 1.0 as f32, y: 2.0 as f32, z: 3.0 as f32 }, Point::<f32>::new(1.0, 2.0, 3.0));
+        assert_eq!(Point{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Point::new(1.0, 2.0, 3.0));
     }
 
     #[test]
     fn new_vector() {
-        assert_eq!(Vector{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Vector::<f64>::new(1.0, 2.0, 3.0));
-        assert_eq!(Vector{x: 1.0 as f32, y: 2.0 as f32, z: 3.0 as f32 }, Vector::<f32>::new(1.0, 2.0, 3.0));
+        assert_eq!(Vector{x: 1.0 as f64, y: 2.0 as f64, z: 3.0 as f64 }, Vector::new(1.0, 2.0, 3.0));
     }
 
     #[test]
