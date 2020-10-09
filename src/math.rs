@@ -269,4 +269,74 @@ mod tests {
         assert_eq!(expected, m1 * m2);
     }
 
+
+    #[test]
+    fn a_matrix_multiplied_by_vec() {
+        let m1 = Matrix::from_vec(vec![vec![1.0,2.0,3.0,4.0], 
+                                 vec![2.0,4.0,4.0,2.0],
+                                 vec![8.0,6.0,4.0,1.0],
+                                 vec![0.0,0.0,0.0,1.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![1.0], 
+                                 vec![2.0],
+                                 vec![3.0],
+                                 vec![1.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![18.0], 
+                                 vec![24.0],
+                                 vec![33.0],
+                                 vec![1.0]]).unwrap();
+
+        assert_eq!(expected, m1 * m2);
+    }
+
+    #[test]
+    fn multiplying_a_identity_matrix() {
+        let m1 = Matrix::from_vec(vec![vec![0.0,1.0,2.0,4.0], 
+                                 vec![1.0,2.0,4.0,8.0],
+                                 vec![2.0,4.0,8.0,16.0],
+                                 vec![4.0,8.0,16.0,32.0]]).unwrap();
+
+        let m2 = Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0], 
+                                 vec![0.0,1.0,0.0,0.0],
+                                 vec![0.0,0.0,1.0,0.0],
+                                 vec![0.0,0.0,0.0,1.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![0.0,1.0,2.0,4.0], 
+                                 vec![1.0,2.0,4.0,8.0],
+                                 vec![2.0,4.0,8.0,16.0],
+                                 vec![4.0,8.0,16.0,32.0]]).unwrap();
+
+        assert_eq!(expected, m1 * m2);
+    }
+
+    #[test]
+    fn transposing_a_matrix() {
+        let m1 = Matrix::from_vec(vec![vec![0.0,9.0,3.0,0.0], 
+                                 vec![9.0,8.0,0.0,8.0],
+                                 vec![1.0,8.0,5.0,3.0],
+                                 vec![0.0,0.0,5.0,8.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![0.0,9.0,1.0,0.0], 
+                                 vec![9.0,8.0,8.0,0.0],
+                                 vec![3.0,0.0,5.0,5.0],
+                                 vec![0.0,8.0,3.0,8.0]]).unwrap();
+
+        assert_eq!(expected, m1.transpose());
+    }
+
+    #[test]
+    fn transposing_identity_matrix() {
+        let m1 = Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0], 
+                                 vec![0.0,1.0,0.0,0.0],
+                                 vec![0.0,0.0,1.0,0.0],
+                                 vec![0.0,0.0,0.0,1.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0], 
+                                 vec![0.0,1.0,0.0,0.0],
+                                 vec![0.0,0.0,1.0,0.0],
+                                 vec![0.0,0.0,0.0,1.0]]).unwrap();
+
+        assert_eq!(expected, m1.transpose());
+    }
 }

@@ -49,7 +49,22 @@ impl Matrix {
     pub fn cols(&self) -> usize {
         self.cols
     }
+    
+    /** Transposes a given matrix.
+     *
+     * Rows and columns are switched.
+     */
+    pub fn transpose(&self) -> Self {
+        let mut m = Matrix::new(self.rows, self.cols);  
 
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                m[r][c] = self[c][r];
+            }
+        }
+
+        m
+    }
 }
 
 impl ops::Index<usize> for Matrix {
@@ -70,6 +85,9 @@ impl ops::Mul<Matrix> for Matrix {
     type Output = Self;
     
     /** Multiplies to matrices.
+     *
+     * The number of columns of the first matrix have to match
+     * the number of rows of the second matrix!
      */
     fn mul(self, other: Self) -> Self {
         assert!(self.cols == other.rows, 
