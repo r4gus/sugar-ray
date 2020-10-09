@@ -1,6 +1,8 @@
 use std::{
     ops,
     cmp,
+    marker::Copy,
+    clone::Clone,
 };
 
 /** Represents a NxM Matrix.
@@ -64,22 +66,41 @@ impl ops::IndexMut<usize> for Matrix {
     }
 }
 
+impl ops::Mul<Matrix> for Matrix {
+    type Output = Self;
+    
+    /** Multiplies to matrices.
+     */
+    fn mul(self, other: Self) -> Self {
+        assert!(self.cols == other.rows, 
+                "Number of Columns of first matrix must be equal to the number of rows of the second.");  
+        
+        let mut matrix = Matrix::new(self.rows, other.cols);
+        let n = self.cols;
+        
+        for i in 0..matrix.rows {
+            for j in 0..matrix.cols {
+                for k in 0..n {
+                    matrix[i][j] = matrix[i][j] + (self[i][k] * other[k][j]);
+                }
+            }
+        }
+
+        matrix
+    }
+}
+
 impl cmp::PartialEq for Matrix {
     fn eq(&self, other: &Self) -> bool {
-        if self.m.len() != other.m.len() {
-            // Different row size
+        if self.rows != other.rows || self.cols != other.cols {
+            // Different row/ col size
             return false;
         }
         
         // iterate over rows
-        for r in 0..self.m.len() {
-            if self[r].len() != other[r].len() {
-                // Different collumn size
-                return false;
-            }
-            
+        for r in 0..self.rows {
             // iterate over columns
-            for c in 0..self[r].len() {
+            for c in 0..self.cols {
                 if (self[r][c] - other[r][c]).abs() > f64::EPSILON {
                     return false;
                 }
