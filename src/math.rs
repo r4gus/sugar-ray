@@ -339,4 +339,82 @@ mod tests {
 
         assert_eq!(expected, m1.transpose());
     }
+
+    #[test]
+    fn calculating_the_determinant_of_a_2x2_matrix() {
+        let m = Matrix::from_vec(vec![vec![1.0, 5.0], vec![-3.0,2.0]]).unwrap();
+
+        assert_eq!(17.0, m.det());
+    }
+
+    #[test]
+    fn a_submatrix_of_a_3x3_matrix() {
+        let m = Matrix::from_vec(vec![vec![1.0,5.0,0.0],
+                                 vec![-3.0,2.0,7.0],
+                                 vec![0.0,6.0,-3.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![-3.0,2.0],
+                                 vec![0.0,6.0]]).unwrap();
+
+        assert_eq!(expected, m.submatrix(0, 2));
+    }
+
+    #[test]
+    fn a_submatrix_of_a_4x4_matrix() {
+        let m = Matrix::from_vec(vec![vec![-6.0,1.0,1.0,6.0],
+                                 vec![-8.0,5.0,8.0,6.0],
+                                 vec![-1.0,0.0,8.0,2.0],
+                                 vec![-7.0,1.0,-1.0,1.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![-6.0,1.0,6.0],
+                                 vec![-8.0,8.0,6.0],
+                                 vec![-7.0,-1.0,1.0]]).unwrap();
+
+        assert_eq!(expected, m.submatrix(2, 1));
+    }
+
+    #[test]
+    fn calculating_a_minor_of_a_3x3_matrix() {
+        let m = Matrix::from_vec(vec![vec![3.0,5.0,0.0],
+                                 vec![2.0,-1.0,-7.0],
+                                 vec![6.0,-1.0,5.0]]).unwrap();
+
+        assert_eq!(25.0, m.minor(1, 0));
+    }
+
+    #[test]
+    fn calculating_a_cofactor_of_a_3x3_matrix() {
+        let m = Matrix::from_vec(vec![vec![3.0,5.0,0.0],
+                                 vec![2.0,-1.0,-7.0],
+                                 vec![6.0,-1.0,5.0]]).unwrap();
+
+        assert_eq!(-12.0, m.cofactor(0, 0));
+        assert_eq!(-25.0, m.cofactor(1, 0));
+    }
+
+    #[test]
+    fn calculating_the_determinant_of_a_3x3_matrix() {
+        let m = Matrix::from_vec(vec![vec![1.0,2.0,6.0],
+                                 vec![-5.0,8.0,-4.0],
+                                 vec![2.0,6.0,4.0]]).unwrap();
+
+        assert_eq!(56.0, m.cofactor(0, 0));
+        assert_eq!(12.0, m.cofactor(0, 1));
+        assert_eq!(-46.0, m.cofactor(0, 2));
+        assert_eq!(-196.0, m.det());
+    }
+
+    #[test]
+    fn calculating_the_determinant_of_a_4x4_matrix() {
+        let m = Matrix::from_vec(vec![vec![-2.0,-8.0,3.0,5.0],
+                                 vec![-3.0,1.0,7.0,3.0],
+                                 vec![1.0,2.0,-9.0,6.0],
+                                 vec![-6.0,7.0,7.0,-9.0]]).unwrap();
+
+        assert_eq!(690.0, m.cofactor(0, 0));
+        assert_eq!(447.0, m.cofactor(0, 1));
+        assert_eq!(210.0, m.cofactor(0, 2));
+        assert_eq!(51.0, m.cofactor(0, 3));
+        assert_eq!(-4071.0, m.det());
+    }
 }

@@ -65,6 +65,78 @@ impl Matrix {
 
         m
     }
+    
+    /** Find the determinant of a matrix.
+     */
+    pub fn det(&self) -> f64 {
+        if self.cols == 2 {
+            (self[0][0] * self[1][1]) - (self[0][1] * self[1][0])
+        } else {
+            let mut det = 0.0;
+
+            for c in 0..self.cols {
+                det = det + self[0][c] * self.cofactor(0, c);    
+            }
+
+            det
+        }
+    }
+
+    /** Create a submatrix of a given matrix.
+     *
+     * Deletes the n'th row and m'th column of the specified
+     * matrix and returns the remaining rest.
+     */
+    pub fn submatrix(&self, row: usize, col: usize) -> Self {
+        let mut m = Matrix::new(self.rows - 1, self.cols - 1);
+        let mut r_new = 0;
+        let mut c_new = 0;
+
+        for r in 0..self.rows {
+            if r == row {
+                // skip over "deleted" row
+                continue;
+            }
+            
+            c_new = 0;
+            for c in 0..self.cols {
+                if c == col {
+                    // skip over "deleted" column
+                    continue;
+                }
+
+                m[r_new][c_new] = self[r][c];
+                c_new += 1;
+            }
+
+            r_new += 1;
+        }
+
+        m
+    }
+    
+    /** Calculate the minor of an element at row `row` and column `col`.
+     *
+     * The minor of an element of the matrix M, M(i,j) is the determinant of the
+     * sub-matrix at (i,j).
+     */
+    pub fn minor(&self, row: usize, col: usize) -> f64 {
+        self.submatrix(row, col).det()
+    }
+    
+    /** Calculate the cofactor of an element at row `row` and column `col`.
+     *
+     * The cofactor is the (possibly) sign changed minor of the element.
+     */
+    pub fn cofactor(&self, row: usize, col: usize) -> f64 {
+        let mut d = self.submatrix(row, col).det();
+
+        if (row +  col) % 2 != 0 {
+            d = -d;
+        }
+
+        d
+    }
 }
 
 impl ops::Index<usize> for Matrix {
