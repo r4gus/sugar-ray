@@ -488,7 +488,6 @@ mod tests {
                                  vec![6.0,-2.0,0.0,5.0]]).unwrap();
 
         let c = a.mul(&b);
-        println!("=====================> {}", f64::EPSILON * 16.0);
         assert_eq!(a, c.mul(&b.inverse().unwrap()));
     }
 }
