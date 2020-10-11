@@ -417,4 +417,78 @@ mod tests {
         assert_eq!(51.0, m.cofactor(0, 3));
         assert_eq!(-4071.0, m.det());
     }
+
+    #[test]
+    fn testing_an_invertible_matrix_for_invertibility() {
+        let m = Matrix::from_vec(vec![vec![6.0,4.0,4.0,4.0],
+                                 vec![5.0,5.0,7.0,6.0],
+                                 vec![4.0,-9.0,3.0,-7.0],
+                                 vec![9.0,1.0,7.0,-6.0]]).unwrap();
+
+        assert_eq!(true, m.is_inv());
+    }
+
+    #[test]
+    fn testing_an_noninvertible_matrix_for_invertibility() {
+        let m = Matrix::from_vec(vec![vec![-4.0,2.0,-2.0,-3.0],
+                                 vec![9.0,6.0,2.0,6.0],
+                                 vec![0.0,-5.0,1.0,-5.0],
+                                 vec![0.0,0.0,0.0,0.0]]).unwrap();
+
+        assert_eq!(false, m.is_inv());
+    }
+
+    #[test]
+    fn calculating_the_inverse_of_a_matrix() {
+        let m = Matrix::from_vec(vec![vec![-5.0,2.0,6.0,-8.0],
+                                 vec![1.0,-5.0,1.0,8.0],
+                                 vec![7.0,7.0,-6.0,-7.0],
+                                 vec![1.0,-3.0,7.0,4.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![0.21804511278195488, 0.45112781954887216, 0.24060150375939848, -0.045112781954887216], 
+                                        vec![-0.8082706766917294, -1.4567669172932332, -0.44360902255639095, 0.5206766917293233], 
+                                        vec![-0.07894736842105263, -0.2236842105263158, -0.05263157894736842, 0.19736842105263158], 
+                                        vec![-0.5225563909774437, -0.8139097744360902, -0.3007518796992481, 0.30639097744360905]]).unwrap();
+
+        let b = m.inverse().unwrap();
+
+        assert_eq!(532.0, m.det());
+        assert_eq!(-160.0, m.cofactor(2,3));
+        assert_eq!(105.0, m.cofactor(3,2));
+        assert_eq!(-160.0 / 532.0, b[3][2]);
+        assert_eq!(105.0 / 532.0, b[2][3]);
+        assert_eq!(expected, b);
+    }
+
+    #[test]
+    fn calculate_inverse_of_another_matrix() {
+        let m = Matrix::from_vec(vec![vec![8.0,-5.0,9.0,2.0],
+                                 vec![7.0,5.0,6.0,1.0],
+                                 vec![-6.0,0.0,9.0,6.0],
+                                 vec![-3.0,0.0,-9.0,-4.0]]).unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![-0.15384615384615385, -0.15384615384615385, -0.28205128205128205, -0.5384615384615384], vec![-0.07692307692307693, 0.12307692307692308, 0.02564102564102564, 0.03076923076923077], vec![0.358974358974359, 0.358974358974359, 0.4358974358974359, 0.9230769230769231], vec![-0.6923076923076923, -0.6923076923076923, -0.7692307692307693, -1.9230769230769231]]).unwrap();
+
+
+        let b = m.inverse().unwrap();
+
+        assert_eq!(expected, b);
+    }
+
+    #[test]
+    fn multiply_a_product_by_its_inverse() {
+        let a = Matrix::from_vec(vec![vec![3.0,-9.0,7.0,3.0],
+                                 vec![3.0,-8.0,2.0,-9.0],
+                                 vec![-4.0,4.0,4.0,1.0],
+                                 vec![-6.0,5.0,-1.0,1.0]]).unwrap();
+
+        let b = Matrix::from_vec(vec![vec![8.0,2.0,2.0,2.0],
+                                 vec![3.0,-1.0,7.0,0.0],
+                                 vec![7.0,0.0,5.0,4.0],
+                                 vec![6.0,-2.0,0.0,5.0]]).unwrap();
+
+        let c = a.mul(&b);
+        println!("=====================> {}", f64::EPSILON * 16.0);
+        assert_eq!(a, c.mul(&b.inverse().unwrap()));
+    }
 }

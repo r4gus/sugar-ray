@@ -129,13 +129,71 @@ impl Matrix {
      * The cofactor is the (possibly) sign changed minor of the element.
      */
     pub fn cofactor(&self, row: usize, col: usize) -> f64 {
-        let mut d = self.submatrix(row, col).det();
+        let mut d = self.minor(row, col);
 
         if (row +  col) % 2 != 0 {
             d = -d;
         }
 
         d
+    }
+    
+    /** Checks if the given matrix (is_inv)ersible.
+     */
+    pub fn is_inv(&self) -> bool {
+        self.det().abs() != 0.0
+    }
+    
+    /** Calculates the inverse of the given matrix.
+     */
+    pub fn inverse(&self) -> Option<Self> {
+        if !self.is_inv() {
+            return None;
+        }
+
+        let mut m = Matrix::new(self.rows, self.cols);
+        let det = self.det();
+
+        // Setp 1: construct a matrix of cofactors
+        // Step 2: Transpose matrix of cofactors (switch rows and columns for each element)
+        // Step 3:  Divide each element by the determinant
+        //          of the original matrix
+        //
+        //  All steps are executed in a single loop.
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                m[c][r] = self.cofactor(r, c) / det;
+            }
+        }
+
+        Some(m)
+    }
+
+    /** Multiplies to matrices.
+     *
+     * The number of columns of the first matrix have to match
+     * the number of rows of the second matrix!
+     */
+    fn _mul(&self, other: &Self) -> Self {
+        assert!(self.cols == other.rows, 
+                "Number of Columns of first matrix must be equal to the number of rows of the second.");  
+        
+        let mut matrix = Matrix::new(self.rows, other.cols);
+        let n = self.cols;
+        
+        for i in 0..matrix.rows {
+            for j in 0..matrix.cols {
+                for k in 0..n {
+                    matrix[i][j] = matrix[i][j] + (self[i][k] * other[k][j]);
+                }
+            }
+        }
+
+        matrix
+    }
+
+    pub fn mul(&self, other: &Self) -> Self {
+        self._mul(other)
     }
 }
 
@@ -162,21 +220,7 @@ impl ops::Mul<Matrix> for Matrix {
      * the number of rows of the second matrix!
      */
     fn mul(self, other: Self) -> Self {
-        assert!(self.cols == other.rows, 
-                "Number of Columns of first matrix must be equal to the number of rows of the second.");  
-        
-        let mut matrix = Matrix::new(self.rows, other.cols);
-        let n = self.cols;
-        
-        for i in 0..matrix.rows {
-            for j in 0..matrix.cols {
-                for k in 0..n {
-                    matrix[i][j] = matrix[i][j] + (self[i][k] * other[k][j]);
-                }
-            }
-        }
-
-        matrix
+        self._mul(&other)
     }
 }
 
@@ -186,12 +230,14 @@ impl cmp::PartialEq for Matrix {
             // Different row/ col size
             return false;
         }
+
+        const EPSILON: f64 = f64::EPSILON * 16.0;
         
         // iterate over rows
         for r in 0..self.rows {
             // iterate over columns
             for c in 0..self.cols {
-                if (self[r][c] - other[r][c]).abs() > f64::EPSILON {
+                if (self[r][c] - other[r][c]).abs() > EPSILON {
                     return false;
                 }
             }
