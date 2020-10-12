@@ -5,6 +5,9 @@ use std::{
     clone::Clone,
 };
 
+use super::vector::Vector;
+use super::point::Point;
+
 /** Represents a NxM Matrix.
  */
 #[derive(Clone, Debug)]
@@ -233,6 +236,25 @@ impl ops::Mul<Matrix> for Matrix {
      */
     fn mul(self, other: Self) -> Self {
         self._mul(&other)
+    }
+}
+
+impl ops::Mul<Point> for Matrix {
+    type Output = Point;
+
+    fn mul(self, other: Point) -> Point {
+        Point::new(
+            (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 1.0), 
+            (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 1.0),
+            (self[1][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 1.0))
+    }
+}
+
+impl ops::Mul<Vector> for Matrix {
+    type Output = Vector;
+
+    fn mul(self, other: Vector) -> Vector {
+        other
     }
 }
 
