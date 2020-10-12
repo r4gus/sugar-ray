@@ -490,4 +490,24 @@ mod tests {
         let c = a.mul(&b);
         assert_eq!(a, c.mul(&b.inverse().unwrap()));
     }
+
+    #[test]
+    fn multiply_matrix_by_its_inverse() {
+        let a = Matrix::from_vec(vec![vec![3.0,-9.0,7.0,3.0],
+                                 vec![3.0,-8.0,2.0,-9.0],
+                                 vec![-4.0,4.0,4.0,1.0],
+                                 vec![-6.0,5.0,-1.0,1.0]]).unwrap();
+
+        let inv = a.inverse().unwrap();
+
+        let expected = Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0],
+                                        vec![0.0,1.0,0.0,0.0],
+                                        vec![0.0,0.0,1.0,0.0],
+                                        vec![0.0,0.0,0.0,1.0],
+                                 ]).unwrap();
+        
+        let mut x = a * inv;
+        x.round();
+        assert_eq!(expected, x);
+    }
 }

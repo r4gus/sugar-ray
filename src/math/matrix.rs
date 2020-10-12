@@ -195,6 +195,18 @@ impl Matrix {
     pub fn mul(&self, other: &Self) -> Self {
         self._mul(other)
     }
+    
+    /** Round each element to its nearest integer.
+     */
+    pub fn round(&mut self) -> &Self {
+        for r in 0..self.rows {
+            for c in 0..self.cols {
+                self[c][r] = self[c][r].round();
+            }
+        }
+
+        self
+    }
 }
 
 impl ops::Index<usize> for Matrix {
