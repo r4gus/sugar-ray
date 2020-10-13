@@ -1,3 +1,5 @@
+pub mod translation;
+
 use std::{
     ops,
     cmp,
@@ -246,7 +248,7 @@ impl ops::Mul<Point> for Matrix {
         Point::new(
             (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 1.0), 
             (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 1.0),
-            (self[1][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 1.0))
+            (self[2][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 1.0))
     }
 }
 
@@ -254,7 +256,10 @@ impl ops::Mul<Vector> for Matrix {
     type Output = Vector;
 
     fn mul(self, other: Vector) -> Vector {
-        other
+        Vector::new(
+            (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 0.0), 
+            (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 0.0),
+            (self[2][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 0.0))
     }
 }
 
