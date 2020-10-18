@@ -30,6 +30,22 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
                       vec![0.0,0.0,0.0,1.0]]).unwrap()
 }
 
+pub fn radians(deg: f64) -> f64 {
+    (deg / 180.0) * std::f64::consts::PI
+}
+
+/** Generate a rotation Matrix for the x axis.
+ * 
+ * A Point multiplied by this matrix gets rotated
+ * on the x axis.
+ */
+pub fn rotation_rad_x(r: f64) -> Matrix {
+    Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0],
+                      vec![0.0,r.cos(),r.asin(),0.0],
+                      vec![0.0,r.sin(),r.cos(),0.0],
+                      vec![0.0,0.0,0.0,1.0]]).unwrap()
+}
+
 #[cfg(test)]
 mod test {
     use crate::math::{
@@ -88,5 +104,21 @@ mod test {
         let t = scaling(-1.0,1.0,1.0).inverse().unwrap();
         let v = Point::new(2.0,3.0,4.0);
         assert_eq!(Point::new(-2.0,3.0,4.0), t * v);
+    }
+
+    #[test]
+    fn degree_to_radians() {
+        assert_eq!(std::f64::consts::PI, radians(180.0));
+        assert_eq!(std::f64::consts::PI * 2.0, radians(360.0));
+    }
+
+    #[test]
+    fn rotating_a_point_around_the_x_axis() {
+        let p = Point::new(0.0,1.0,0.0);
+        let half_quarter = rotation_rad_x(std::f64::consts::PI / 4.0);
+        let full_quarter = rotation_rad_x(std::f64::consts::PI / 2.0);
+
+        assert_eq!(Point::new(0.0, (2.0 as f64).sqrt() / 2.0, (2.0 as f64).sqrt() / 2.0), half_quarter * p);
+        assert_eq!(Point::new(0.0, 0.0, 1.0), full_quarter * p);
     }
 }
