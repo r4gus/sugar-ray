@@ -10,6 +10,8 @@ use std::{
 use super::vector::Vector;
 use super::point::Point;
 
+use float_cmp::{ApproxEq, F64Margin};
+
 /** Represents a NxM Matrix.
  */
 #[derive(Clone, Debug)]
@@ -276,7 +278,7 @@ impl cmp::PartialEq for Matrix {
         for r in 0..self.rows {
             // iterate over columns
             for c in 0..self.cols {
-                if (self[r][c] - other[r][c]).abs() > EPSILON {
+                if (self[r][c] - other[r][c]).abs() > EPSILON   {
                     return false;
                 }
             }
