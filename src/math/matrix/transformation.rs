@@ -21,7 +21,7 @@ use crate::math::{
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::{point::Point, matrix::{Matrix, translation::*}};
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
 ///
 /// let t = translation(5.0, -3.0, 2.0);
 /// let p = Point::new(-3.0, 4.0, 5.0);
@@ -54,7 +54,7 @@ pub fn translation(x: f64, y: f64, z: f64) -> Matrix {
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::{point::Point, vector::Vector, matrix::{Matrix, translation::*}};
+/// use sugar_ray::math::{point::Point, vector::Vector, matrix::{Matrix, transformation::*}};
 ///
 /// let t = scaling(2.0,3.0,4.0);
 /// let p = Point::new(-4.0,6.0,8.0);
@@ -84,7 +84,7 @@ pub fn scaling(x: f64, y: f64, z: f64) -> Matrix {
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::matrix::translation::radians;
+/// use sugar_ray::math::matrix::transformation::radians;
 ///
 /// assert_eq!(std::f64::consts::PI, radians(180.0))
 /// ```
@@ -104,7 +104,7 @@ pub fn radians(deg: f64) -> f64 {
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::{point::Point, matrix::{Matrix, translation::*}};
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
 ///
 /// let p = Point::new(0.0, 1.0, 0.0);
 /// let half_quarter = rotation_rad_x(std::f64::consts::PI / 4.0);
@@ -131,7 +131,7 @@ pub fn rotation_rad_x(r: f64) -> Matrix {
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::{point::Point, matrix::{Matrix, translation::*}};
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
 ///
 /// let p = Point::new(0.0, 0.0, 1.0);
 /// let half_quarter = rotation_rad_y(std::f64::consts::PI / 4.0);
@@ -158,7 +158,7 @@ pub fn rotation_rad_y(r: f64) -> Matrix {
 /// # Examples
 ///
 /// ```
-/// use sugar_ray::math::{point::Point, matrix::{Matrix, translation::*}};
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
 ///
 /// let p = Point::new(0.0, 1.0, 0.0);
 /// let half_quarter = rotation_rad_z(std::f64::consts::PI / 4.0);
@@ -173,6 +173,58 @@ pub fn rotation_rad_z(r: f64) -> Matrix {
                       vec![0.0,0.0,0.0,1.0]]).unwrap()
 }
 
+/// Create a shearing (or skew) transformation matrix.
+///
+/// This transformation changes each component of a 3-tuple in
+/// proportion to the other two components, e.g. the x component
+/// changes in proportion to y and z.
+///
+/// It can be used to make straight lines slanted.
+///
+/// # Arguments
+///
+/// * `xpy` - X value to be moved in proportion to Y
+/// * `xpz` - X value to be moved in proportion to Z
+/// * `ypx` - Y value to be moved in proportion to X
+/// * `ypz` - Y value to be moved in proportion to Z
+/// * `zpx` - Z value to be moved in proportion to X
+/// * `zpy` - Z value to be moved in proportion to Y
+///
+/// e.g. xpy means "x moved in proportion to y". This
+/// represents the __amount by which to multiply y__ before
+/// __adding it to x__.
+///
+/// # Examples
+/// 
+/// 1. Move Z in proportion to Y (by 1)
+/// ```
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
+///
+/// let t = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+/// let p = Point::new(2.0, 3.0, 4.0);
+/// let pt = Point::new(2.0, 3.0, 7.0);
+///
+/// assert_eq!(pt, t * p);
+/// ```
+///
+/// 2. Move x in proportion to Y, Y in proportion to X and Z in proportion to X.
+/// ```
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
+///
+/// let t = shearing(1.0, 0.0, 2.0, 0.0, 3.0, 0.0);
+/// let p = Point::new(2.0, 3.0, 4.0);
+/// let pt = Point::new(5.0, 7.0, 10.0);
+///
+/// // pt = (2 + (3 * 1), 3 + (2 * 2), 4 + (2 * 3))
+/// assert_eq!(pt, t * p);
+/// ```
+pub fn shearing(xpy: f64, xpz: f64, ypx: f64, ypz: f64, zpx: f64, zpy: f64) -> Matrix {
+    Matrix::from_vec(vec![vec![1.0, xpy, xpz, 0.0],
+                     vec![ypx, 1.0, ypz, 0.0],
+                     vec![zpx, zpy, 1.0, 0.0],
+                     vec![0.0, 0.0, 0.0, 1.0]]).unwrap()
+}
+
 #[cfg(test)]
 mod test {
     use crate::math::{
@@ -180,7 +232,7 @@ mod test {
         vector::Vector,
         matrix::{
             Matrix,
-            translation::*,
+            transformation::*,
         },
     };
 
@@ -276,5 +328,59 @@ mod test {
 
         assert_eq!(Point::new(-(2.0 as f64).sqrt() / 2.0, (2.0 as f64).sqrt() / 2.0, 0.0), half_quarter * p);
         assert_eq!(Point::new(-1.0, 0.0, 0.0), full_quarter * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_x_in_proportion_to_y() {
+        let t = shearing(1.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(5.0, 3.0, 4.0);
+
+        assert_eq!(pt, t * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_x_in_proportion_to_z() {
+        let t = shearing(0.0, 1.0, 0.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(6.0, 3.0, 4.0);
+
+        assert_eq!(pt, t * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_y_in_proportion_to_x() {
+        let t = shearing(0.0, 0.0, 1.0, 0.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(2.0, 5.0, 4.0);
+
+        assert_eq!(pt, t * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_y_in_proportion_to_z() {
+        let t = shearing(0.0, 0.0, 0.0, 1.0, 0.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(2.0, 7.0, 4.0);
+
+        assert_eq!(pt, t * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_z_in_proportion_to_x() {
+        let t = shearing(0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(2.0, 3.0, 6.0);
+
+        assert_eq!(pt, t * p);
+    }
+
+    #[test]
+    fn a_shearing_transformation_moves_z_in_proportion_to_y() {
+        let t = shearing(0.0, 0.0, 0.0, 0.0, 0.0, 1.0);
+        let p = Point::new(2.0, 3.0, 4.0);
+        let pt = Point::new(2.0, 3.0, 7.0);
+
+        assert_eq!(pt, t * p);
     }
 }
