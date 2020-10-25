@@ -1,6 +1,6 @@
 pub mod color;
 
-use color::Color;
+use self::color::Color;
 use super::ppm::{Ppm, PpmColor};
 
 use std::cmp;

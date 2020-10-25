@@ -10,8 +10,6 @@ use std::{
 use super::vector::Vector;
 use super::point::Point;
 
-use float_cmp::{ApproxEq, F64Margin};
-
 /** Represents a NxM Matrix.
  */
 #[derive(Clone, Debug)]
@@ -272,7 +270,8 @@ impl cmp::PartialEq for Matrix {
             return false;
         }
 
-        const EPSILON: f64 = f64::EPSILON * 16.0;
+        //const EPSILON: f64 = f64::EPSILON * 20.0;
+        const EPSILON: f64 = 0.00000000000001;
         
         // iterate over rows
         for r in 0..self.rows {
