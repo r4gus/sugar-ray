@@ -190,5 +190,3 @@ mod tests {
         assert_eq!('\n', Canvas::new(5,3).to_ppm().pop().unwrap()); 
     }
 }
-
-
