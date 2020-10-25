@@ -1,4 +1,57 @@
 /// This module defines some transformative operations like __translation__ and __scaling__.
+///
+/// # Examles
+///
+/// 1. Individual transformations are applied in sequence.
+/// ```
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
+///
+/// let mut p = Point::new(1.0, 0.0, 1.0);
+/// let r = rotation_rad_x(std::f64::consts::PI / 2.0);
+/// let s = scaling(5.0, 5.0, 5.0);
+/// let t = translation(10.0, 5.0, 7.0);
+///
+/// // Rotate by 90 degree around the x axis
+/// p = r * p;
+///
+/// // Then scale it
+/// p = s * p;
+///
+/// // Then move it
+/// p = t * p;
+///
+/// assert_eq!(Point::new(15.0, 0.0, 7.0), p);
+/// ```
+///
+/// 2. Chained transformations must be applied in __reverse order__.
+/// ```
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
+///
+/// let mut p = Point::new(1.0, 0.0, 1.0);
+/// let r = rotation_rad_x(std::f64::consts::PI / 2.0);
+/// let s = scaling(5.0, 5.0, 5.0);
+/// let t = translation(10.0, 5.0, 7.0);
+///
+/// // apply multiplication in reverse order
+/// let transform = t * s * r;
+///
+/// assert_eq!(Point::new(15.0, 0.0, 7.0), transform * p);
+/// ```
+///
+/// 3. You can also concatenate transformations in a more natural way through
+/// transformation methods defined for Matrix.
+/// ```
+/// use sugar_ray::math::{point::Point, matrix::{Matrix, transformation::*}};
+///
+/// let mut p = Point::new(1.0, 0.0, 1.0);
+///
+/// let transform = Matrix::identity().
+///                     rotate_x(std::f64::consts::PI / 2.0).
+///                     scale(5.0, 5.0, 5.0).
+///                     translate(10.0, 5.0, 7.0);
+///
+/// assert_eq!(Point::new(15.0, 0.0, 7.0), transform * p);
+/// ```
 pub mod transformation;
 
 use std::{
@@ -10,6 +63,7 @@ use std::{
 
 use super::vector::Vector;
 use super::point::Point;
+use transformation::*;
 
 /// Represents a __N__ x __M__ Matrix.
 ///
@@ -19,6 +73,23 @@ use super::point::Point;
 ///
 /// 1. The multiplication of matrices is associative, i.e. A * (B * C) = (A * B) * C
 /// 2. But not commutative, i.e. A * B != B * A
+///
+/// # Access
+///
+/// A matrix can be accessed in an array like manner using square brackets.
+///
+/// ```
+/// use sugar_ray::math::matrix::Matrix;
+///
+/// // Create a 2 x 2 matrix
+/// let mut m = Matrix::new(2,2);
+///
+/// m[0][1] = 2.3;
+/// m[1][0] = 7.5;
+///
+/// assert_eq!(Matrix::from_vec(vec![vec![0.0, 2.3], vec![7.5, 0.0]]).unwrap(), m);
+/// assert_eq!(7.5, m[1][0]);
+/// ```
 #[derive(Clone, Debug)]
 pub struct Matrix {
     m: Vec<Vec<f64>>,
@@ -407,6 +478,161 @@ impl Matrix {
 
         self
     }
+    
+    /// Create a 4 x 4 identity matrix.
+    ///
+    /// # Examples
+    ///
+    /// ```
+    /// use sugar_ray::math::matrix::Matrix;
+    ///
+    /// let ident = Matrix::identity();
+    /// ```
+    pub fn identity() -> Self {
+        Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0], 
+                              vec![0.0,1.0,0.0,0.0],
+                              vec![0.0,0.0,1.0,0.0],
+                              vec![0.0,0.0,0.0,1.0]]).unwrap()
+    }
+    
+    /// Apply rotation on the x-axis to the given matrix.
+    ///
+    /// # Arguments
+    ///
+    /// * `rad` - The rotation to be applied in radians
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking rotate_x on a identity matrix results in a rotation matrix
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::rotation_rad_x};
+    ///
+    /// let t = Matrix::identity().rotate_x(std::f64::consts::PI / 2.0);
+    ///
+    /// assert_eq!(rotation_rad_x(std::f64::consts::PI / 2.0), t);
+    /// ```
+    pub fn rotate_x(&self, rad: f64) -> Self {
+        let rot = rotation_rad_x(rad);
+        rot.mul(self)
+    }
+
+    /// Apply rotation on the y-axis to the given matrix.
+    ///
+    /// # Arguments
+    ///
+    /// * `rad` - The rotation to be applied in radians
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking rotate_y on a identity matrix results in a rotation matrix
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::rotation_rad_y};
+    ///
+    /// let t = Matrix::identity().rotate_y(std::f64::consts::PI / 2.0);
+    ///
+    /// assert_eq!(rotation_rad_y(std::f64::consts::PI / 2.0), t);
+    /// ```
+    pub fn rotate_y(&self, rad: f64) -> Self {
+        let rot = rotation_rad_y(rad);
+        rot.mul(self)
+    }
+
+    /// Apply rotation on the z-axis to the given matrix.
+    ///
+    /// # Arguments
+    ///
+    /// * `rad` - The rotation to be applied in radians
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking rotate_z on a identity matrix results in a rotation matrix
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::rotation_rad_z};
+    ///
+    /// let t = Matrix::identity().rotate_z(std::f64::consts::PI / 2.0);
+    ///
+    /// assert_eq!(rotation_rad_z(std::f64::consts::PI / 2.0), t);
+    /// ```
+    pub fn rotate_z(&self, rad: f64) -> Self {
+        let rot = rotation_rad_z(rad);
+        rot.mul(self)
+    }
+
+    /// Apply movement to a matrix
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The movement on the x-axis
+    /// * `y` - The movement on the y-axis
+    /// * `z` - The movement on the z-axis
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking translate on a identity matrix results in a translation matrix
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::translation};
+    ///
+    /// let t = Matrix::identity().translate(5.0, -3.0, 2.0);
+    ///
+    /// assert_eq!(translation(5.0, -3.0, 2.0), t);
+    /// ```
+    pub fn translate(&self, x: f64, y: f64, z: f64) -> Self {
+        let t = translation(x,y,z);
+        t.mul(self)
+    }
+    
+    /// Apply scaling to a matrix.
+    ///
+    /// # Arguments
+    ///
+    /// * `x` - The scaling on the x-axis
+    /// * `y` - The scaling on the y-axis
+    /// * `z` - The scaling on the z-axis
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking scale on a identity matrix results in a scaling matrix
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::scaling};
+    ///
+    /// let s = Matrix::identity().scale(2.0, 3.0, 4.0);
+    ///
+    /// assert_eq!(scaling(2.0, 3.0, 4.0), s);
+    /// ```
+    pub fn scale(&self, x: f64, y: f64, z: f64) -> Self {
+        let s = scaling(x,y,z);
+        s.mul(self)
+    }
+
+    /// Apply shearing to a matrix.
+    ///
+    /// # Arguments
+    ///
+    /// * `xpy` - X value to be moved in proportion to Y
+    /// * `xpz` - X value to be moved in proportion to Z
+    /// * `ypx` - Y value to be moved in proportion to X
+    /// * `ypz` - Y value to be moved in proportion to Z
+    /// * `zpx` - Z value to be moved in proportion to X
+    /// * `zpy` - Z value to be moved in proportion to Y
+    ///
+    /// e.g. xpy means "x moved in proportion to y". This
+    /// represents the __amount by which to multiply y__ before
+    /// __adding it to x__.
+    ///
+    /// # Examples
+    ///
+    /// 1. Invoking shear on a identity matrix results in a shearing (or skew) matrix.
+    /// ```
+    /// use sugar_ray::math::matrix::{Matrix, transformation::shearing};
+    ///
+    /// let s = Matrix::identity().shear(1.0, 0.0, 2.0, 0.0, 3.0, 0.0);
+    ///
+    /// assert_eq!(shearing(1.0, 0.0, 2.0, 0.0, 3.0, 0.0), s);
+    /// ```
+    pub fn shear(&self, xpy: f64, xpz: f64, ypx: f64, ypz: f64, zpx: f64, zpy: f64) -> Self {
+        let s = shearing(xpy,xpz,ypx,ypz,zpx,zpy);
+        s.mul(self)
+    }
 }
 
 impl ops::Index<usize> for Matrix {
@@ -452,6 +678,10 @@ impl ops::Mul<Vector> for Matrix {
 
     fn mul(self, other: Vector) -> Vector {
         Vector::new(
+
+
+
+
             (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 0.0), 
             (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 0.0),
             (self[2][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 0.0))
