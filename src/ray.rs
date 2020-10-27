@@ -6,6 +6,7 @@ use crate::{
         point::Point,
         vector::Vector,
     },
+    ray::intersection::{Intersection, Intersections},
 };
 
 /// A ray (or line) with an starting point and a direction.
@@ -70,9 +71,10 @@ impl Ray {
 
     /// Calculates the distances at which a specific ray intersects the given sphere.
     ///
-    /// This function returns always two values `t1` and `t2` as a tuple `(t1, t2)`
-    /// if the ray intersects the sphere, where `t1` is the smaller value. If the
-    /// ray intersects the sphere at exactly one point then `t1` is equal to `t2`.
+    /// This function returns always two values `t1` and `t2` as a tuple as an 
+    /// Intersections struct if the ray intersects the sphere, where `t1` is the 
+    /// smaller value. If the ray intersects the sphere at exactly one point then 
+    /// `t1` is equal to `t2`.
     ///
     /// # Arguments
     ///
@@ -89,17 +91,18 @@ impl Ray {
     ///         vector::Vector,
     ///         },
     ///     shapes::Sphere,
+    ///     ray::intersection::{Intersection, Intersections},
     /// };
     ///
     /// let r: Ray = Ray::new(Point::new(0.0,0.0,-5.0), Vector::new(0.0,0.0,1.0));
     /// let s: Sphere = Sphere::new();
-    /// let xs: (f64, f64) = r.intersect_sphere(&s).unwrap();
+    /// let xs: Intersections<'_, Sphere> = r.intersect_sphere(&s).unwrap();
     ///
-    /// assert_eq!(4.0, xs.0);
-    /// assert_eq!(6.0, xs.1);
+    /// assert_eq!(4.0, xs[0].t());
+    /// assert_eq!(6.0, xs[1].t());
     /// ```
     ///
-    /// 1. A ray missing a sphere
+    /// 2. A ray missing a sphere
     /// ```
     /// # use sugar_ray::{
     /// #    ray::Ray,
@@ -108,15 +111,36 @@ impl Ray {
     /// #        vector::Vector,
     /// #        },
     /// #    shapes::Sphere,
+    /// #    ray::intersection::{Intersection, Intersections},
     /// # };
     ///
-    /// let r: Ray = Ray::new(Point::new(0.0,-2.0,-5.0), Vector::new(0.0,0.0,1.0));
-    /// let s: Sphere = Sphere::new();
-    /// let xs: Option<(f64, f64)> = r.intersect_sphere(&s);
+    /// let r = Ray::new(Point::new(0.0,-2.0,-5.0), Vector::new(0.0,0.0,1.0));
+    /// let s = Sphere::new();
+    /// let xs = r.intersect_sphere(&s);
     ///
     /// assert_eq!(true, xs.is_none());
     /// ```
-    pub fn intersect_sphere(&self, sphere: &Sphere) -> Option<(f64, f64)> {
+    ///
+    /// 3. Intersect sets the object on the intersection
+    /// ```
+    /// # use sugar_ray::{
+    /// #    ray::Ray,
+    /// #    math::{
+    /// #        point::Point, 
+    /// #        vector::Vector,
+    /// #        },
+    /// #    shapes::Sphere,
+    /// #    ray::intersection::{Intersection, Intersections},
+    /// # };
+    ///
+    /// let r = Ray::new(Point::new(0.0,0.0,-5.0), Vector::new(0.0,0.0,1.0));
+    /// let s = Sphere::new();
+    /// let xs = r.intersect_sphere(&s).unwrap();
+    ///
+    /// assert_eq!(s, *xs[0].obj());
+    /// assert_eq!(s, *xs[1].obj());
+    /// ```
+    pub fn intersect_sphere<'a>(&self, sphere: &'a Sphere) -> Option<Intersections<'a, Sphere>> {
         // We assume that every sphere has its origin at p(0,0,0).
         let sphere_to_ray = *self.origin() - Point::new(0.0, 0.0, 0.0);
 
@@ -133,7 +157,8 @@ impl Ray {
         let t1 = (-b - discriminant.sqrt()) / (2.0 * a);
         let t2 = (-b + discriminant.sqrt()) / (2.0 * a);
 
-        Some((t1, t2))
+        Some(Intersections::new(vec![Intersection::new(t1, sphere),
+                                     Intersection::new(t2, sphere)]))
     }
 
 }
@@ -164,15 +189,15 @@ mod test {
         assert_eq!(Point::new(1.0,3.0,4.0), r.position(-1.0));
         assert_eq!(Point::new(4.5,3.0,4.0), r.position(2.5));
     }
-
+    
     #[test]
     fn a_ray_intersects_a_sphere_at_two_points() {
         let r = Ray::new(Point::new(0.0,0.0,-5.0), Vector::new(0.0,0.0,1.0));
         let s = Sphere::new();
         let xs = r.intersect_sphere(&s).unwrap();
 
-        assert_eq!(4.0, xs.0);
-        assert_eq!(6.0, xs.1);
+        assert_eq!(4.0, xs[0].t());
+        assert_eq!(6.0, xs[1].t());
     }
 
     #[test]
@@ -181,8 +206,8 @@ mod test {
         let s = Sphere::new();
         let xs = r.intersect_sphere(&s).unwrap();
 
-        assert_eq!(5.0, xs.0);
-        assert_eq!(5.0, xs.1);
+        assert_eq!(5.0, xs[0].t());
+        assert_eq!(5.0, xs[1].t());
     }
 
     #[test]
@@ -200,8 +225,8 @@ mod test {
         let s = Sphere::new();
         let xs = r.intersect_sphere(&s).unwrap();
 
-        assert_eq!(-1.0, xs.0);
-        assert_eq!(1.0, xs.1);
+        assert_eq!(-1.0, xs[0].t());
+        assert_eq!(1.0, xs[1].t());
     }
 
     #[test]
@@ -210,7 +235,7 @@ mod test {
         let s = Sphere::new();
         let xs = r.intersect_sphere(&s).unwrap();
 
-        assert_eq!(-6.0, xs.0);
-        assert_eq!(-4.0, xs.1);
+        assert_eq!(-6.0, xs[0].t());
+        assert_eq!(-4.0, xs[1].t());
     }
 }
