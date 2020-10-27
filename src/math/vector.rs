@@ -42,10 +42,12 @@ impl Vector {
      */
     pub fn norm(&mut self) -> &Self {
         let m = self.mag();
-
-        self.x = self.x / m;
-        self.y = self.y / m;
-        self.z = self.z / m;
+        
+        if m != 0.0 {
+            self.x = self.x / m;
+            self.y = self.y / m;
+            self.z = self.z / m;
+        }
         self
     }
 
@@ -56,9 +58,15 @@ impl Vector {
     pub fn norm_cpy(&self) -> Self {
         let m = self.mag();
 
-        Self {  x: self.x / m,
-                y: self.y / m,
-                z: self.z / m }
+        let mut v = Self {  x: self.x, y: self.y, z: self.z };
+        
+        if m != 0.0 {
+            v.x = v.x / m;
+            v.y = v.y / m;
+            v.z = v.z / m;
+        }
+
+        v
     }
 
     /** The dot product (scalar product) of two vectors.
