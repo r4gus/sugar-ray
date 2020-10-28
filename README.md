@@ -26,12 +26,12 @@
   <p align="center">
     A Ray Tracer written in Rust.
     <br/>
-    <a href="https://github.com/r4gus/greasy"><strong>Explore the docs »</strong></a>
+    <a href="https://github.com/r4gus/sugar-ray"><strong>Explore the docs »</strong></a>
     <br/>
     <br/>
-    <a href="https://github.com/r4gus/greasy/issues">Report Bug</a>
+    <a href="https://github.com/r4gus/sugar-ray/issues">Report Bug</a>
     ·
-    <a href="https://github.com/r4gus/greasy/issues">Request Feature</a>
+    <a href="https://github.com/r4gus/sugar-ray/issues">Request Feature</a>
   </p>
 </p>
 
