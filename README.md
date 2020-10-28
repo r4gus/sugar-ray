@@ -154,5 +154,5 @@ Project Link: [https://github.com/r4gus/sugar-ray](https://github.com/r4gus/suga
 [issues-shield]: https://img.shields.io/github/issues/r4gus/sugar-ray?style=flat-square
 [issues-url]: https://github.com/r4gus/sugar-ray/issues
 [license-shield]: https://img.shields.io/github/license/r4gus/sugar-ray?style=flat-square
-[license-url]: https://github.com/r4gus/sugar-ray/blob/traits/LICENSE.txt
+[license-url]: https://github.com/r4gus/sugar-ray/blob/main/LICENSE.txt
 [product-screenshot]: images/screenshot.png
