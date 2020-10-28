@@ -25,11 +25,10 @@
 
   <p align="center">
     A Ray Tracer written in Rust.
- 
-    <br />
+    <br/>
     <a href="https://github.com/r4gus/greasy"><strong>Explore the docs »</strong></a>
-    <br />
-    <br />
+    <br/>
+    <br/>
     <a href="https://github.com/r4gus/greasy/issues">Report Bug</a>
     ·
     <a href="https://github.com/r4gus/greasy/issues">Request Feature</a>
@@ -68,7 +67,7 @@ and the [examples](https://github.com/r4gus/sugar-ray/tree/main/src/examples) fo
 <!-- GETTING STARTED -->
 ## Getting Started
 
-To get a local copy up and running follow these simple example steps.
+To get a local copy up and running follow these simple steps.
 
 ### Prerequisites
 
@@ -121,7 +120,6 @@ Contributions are what make the open source community such an amazing place to b
 5. Open a Pull Request
 
 
-LICENSE
 ## License
 
 Distributed under the MIT License. See `LICENSE` for more information.
@@ -154,5 +152,5 @@ Project Link: [https://github.com/r4gus/sugar-ray](https://github.com/r4gus/suga
 [issues-shield]: https://img.shields.io/github/issues/r4gus/sugar-ray?style=flat-square
 [issues-url]: https://github.com/r4gus/sugar-ray/issues
 [license-shield]: https://img.shields.io/github/license/r4gus/sugar-ray?style=flat-square
-[license-url]: https://github.com/r4gus/sugar-ray/blob/main/LICENSE.txt
+[license-url]: https://github.com/r4gus/sugar-ray/blob/main/LICENSE
 [product-screenshot]: images/screenshot.png
