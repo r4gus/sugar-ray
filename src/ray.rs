@@ -3,6 +3,7 @@ pub mod intersection;
 use crate::{
     shapes::Sphere,
     math::{
+        matrix::Matrix,
         point::Point,
         vector::Vector,
     },
@@ -76,6 +77,11 @@ impl Ray {
     /// smaller value. If the ray intersects the sphere at exactly one point then 
     /// `t1` is equal to `t2`.
     ///
+    /// > The function transforms the ray using the assigned `transform` matrix
+    /// > of the sphere before doing the calculation (this brings the ray from 
+    /// > "world space" into "object space" by applying the inverse transformation, 
+    /// > i.e. we don't transform the object itself but the ray).
+    ///
     /// # Arguments
     ///
     /// * `sphere` - The Sphere to check for intersections with the ray
@@ -140,12 +146,58 @@ impl Ray {
     /// assert_eq!(s, *xs[0].obj());
     /// assert_eq!(s, *xs[1].obj());
     /// ```
+    ///
+    ///
+    /// 4. Intersect a scaled sphere with a ray
+    /// ```
+    /// use sugar_ray::{
+    ///    ray::Ray,
+    ///    math::{
+    ///        point::Point, 
+    ///        vector::Vector,
+    ///        matrix::transformation::scaling,
+    ///        },
+    ///    shapes::Sphere,
+    ///    ray::intersection::{Intersection, Intersections},
+    /// };
+    ///
+    /// let r = Ray::new(Point::new(0.0,0.0,-5.0), Vector::new(0.0,0.0,1.0));
+    /// let mut s = Sphere::new();
+    /// s.set_transform(scaling(2.0, 2.0, 2.0));
+    /// let xs = r.intersect_sphere(&s).unwrap();
+    ///
+    /// assert_eq!(3.0, xs[0].t());
+    /// assert_eq!(7.0, xs[1].t());
+    /// ```
+    ///
+    /// 5. Intersecting a translated sphere with a ray
+    /// ```
+    /// # use sugar_ray::{
+    /// #   ray::Ray,
+    /// #   math::{
+    /// #       point::Point, 
+    /// #       vector::Vector,
+    /// #       matrix::transformation::translation,
+    /// #       },
+    /// #   shapes::Sphere,
+    /// #   ray::intersection::{Intersection, Intersections},
+    /// # };
+    ///
+    /// let r = Ray::new(Point::new(0.0,0.0,-5.0), Vector::new(0.0,0.0,1.0));
+    /// let mut s = Sphere::new();
+    /// s.set_transform(translation(5.0, 0.0, 0.0));
+    /// let xs = r.intersect_sphere(&s);
+    ///
+    /// assert_eq!(true, xs.is_none());
+    /// ```
     pub fn intersect_sphere<'a>(&self, sphere: &'a Sphere) -> Option<Intersections<'a, Sphere>> {
-        // We assume that every sphere has its origin at p(0,0,0).
-        let sphere_to_ray = *self.origin() - Point::new(0.0, 0.0, 0.0);
+        let tray = self.transform(&sphere.get_transform().inverse().unwrap());
 
-        let a = self.direction().dot(&self.direction());
-        let b = 2.0 * self.direction().dot(&sphere_to_ray);
+        // We assume that every sphere has its origin at p(0,0,0).
+        let sphere_to_ray = *tray.origin() - Point::new(0.0, 0.0, 0.0);
+
+        let a = tray.direction().dot(&tray.direction());
+        let b = 2.0 * tray.direction().dot(&sphere_to_ray);
         let c = sphere_to_ray.dot(&sphere_to_ray) - 1.0;
 
         let discriminant = b * b  - 4.0 * a * c;
@@ -160,7 +212,60 @@ impl Ray {
         Some(Intersections::new(vec![Intersection::new(t1, sphere),
                                      Intersection::new(t2, sphere)]))
     }
-
+    
+    /// Transform a ray.
+    ///
+    /// Applies the given transformation matrix to the ray.
+    ///
+    /// # Arguments
+    ///
+    /// * `m` - The transformation matrix to apply
+    ///
+    /// The transformation matrix has to be generated with one of
+    /// the following funktions: [`translation`], [`scaling`],
+    /// [`rotation_rax_x`], [`rotation_rax_y`], [`rotation_rax_z`]
+    /// or [`shearing`] from the [`transformation`] module.
+    ///
+    /// # Examples
+    ///
+    /// 1. Translating a ray.
+    /// ```
+    /// use sugar_ray::{
+    ///     ray::Ray,
+    ///     math::{
+    ///         point::Point,
+    ///         vector::Vector,
+    ///         matrix::transformation::translation,
+    ///     },
+    /// };
+    ///
+    /// let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
+    /// let m = translation(3.0, 4.0, 5.0);
+    /// let r2 = r.transform(&m);
+    /// assert_eq!(Point::new(4.0, 6.0, 8.0), *r2.origin());
+    /// assert_eq!(Vector::new(0.0, 1.0, 0.0), *r2.direction());
+    /// ```
+    ///
+    /// 2. Scaling a ray
+    /// ```
+    /// # use sugar_ray::{
+    /// #   ray::Ray,
+    /// #    math::{
+    /// #        point::Point,
+    /// #        vector::Vector,
+    /// #        matrix::transformation::scaling,
+    /// #    },
+    /// # };
+    ///
+    /// let r = Ray::new(Point::new(1.0, 2.0, 3.0), Vector::new(0.0, 1.0, 0.0));
+    /// let m = scaling(2.0, 3.0, 4.0);
+    /// let r2 = r.transform(&m);
+    /// assert_eq!(Point::new(2.0, 6.0, 12.0), *r2.origin());
+    /// assert_eq!(Vector::new(0.0, 3.0, 0.0), *r2.direction());
+    /// ```
+    pub fn transform(&self, m: &Matrix) -> Self {
+        Self { origin: m.mul_point(&self.origin()), direction: m.mul_vec(&self.direction()) } 
+    }
 }
 
 #[cfg(test)]

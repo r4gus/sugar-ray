@@ -468,6 +468,22 @@ impl Matrix {
         self._mul(other)
     }
     
+    /// Multiply a matrix with a Point.
+    pub fn mul_point(&self, other: &Point) -> Point {
+        Point::new(
+        (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 1.0), 
+        (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 1.0),
+        (self[2][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 1.0))
+    }
+    
+    /// Multiply a matrix with a Vector.
+    pub fn mul_vec(&self, other: &Vector) -> Vector {
+        Vector::new(
+        (self[0][0] * other.x() + self[0][1] * other.y() + self[0][2] * other.z() + self[0][3] * 0.0), 
+        (self[1][0] * other.x() + self[1][1] * other.y() + self[1][2] * other.z() + self[1][3] * 0.0),
+        (self[2][0] * other.x() + self[2][1] * other.y() + self[2][2] * other.z() + self[2][3] * 0.0))
+    }
+    
     ///Round each element to its nearest integer.
     pub fn round(&mut self) -> &Self {
         for r in 0..self.rows {
