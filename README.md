@@ -17,9 +17,11 @@
 <!-- PROJECT LOGO -->
 <br />
 <p align="center">
+  <!--
   <a href="https://github.com/r4gus/greasy">
     <img src="" alt="Logo" width="160" height="80">
   </a>
+  -->
 
   <h3 align="center">Sugar-Ray</h3>
 
@@ -61,6 +63,9 @@ __Sugar-Ray__ is currently able to generate very basic 2D images. You can check 
 [images](https://github.com/r4gus/sugar-ray/tree/main/images) folder for example images 
 and the [examples](https://github.com/r4gus/sugar-ray/tree/main/src/examples) folder for example programs.
 
+<img src="/images/sphere.jpg", alt="Sphere">
+
+
 ### Built With
 * [Rust](https://www.rust-lang.org) 
 
@@ -95,7 +100,6 @@ git clone https://github.com/r4gus/sugar-ray.git
 cargo test
 ```
 to run the tests.
-
 
 <!-- USAGE EXAMPLES -->
 ## Usage

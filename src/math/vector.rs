@@ -38,7 +38,7 @@ impl Vector {
 
     /** Normalize takes an arbitrary vector and converts it into a unit vector (magnitude = 1).
      *
-     * This can help keeping calculatins anchored relative to a common scale (the unit vector).
+     * This can help keeping calculations anchored relative to a common scale (the unit vector).
      */
     pub fn norm(&mut self) -> &Self {
         let m = self.mag();
@@ -53,7 +53,7 @@ impl Vector {
 
     /** Normalize takes an arbitrary vector and converts it into a unit vector (magnitude = 1).
      *
-     * This can help keeping calculatins anchored relative to a common scale (the unit vector).
+     * This can help keeping calculations anchored relative to a common scale (the unit vector).
      */
     pub fn norm_cpy(&self) -> Self {
         let m = self.mag();
