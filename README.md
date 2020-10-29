@@ -63,7 +63,7 @@ __Sugar-Ray__ is currently able to generate very basic 2D images. You can check 
 [images](https://github.com/r4gus/sugar-ray/tree/main/images) folder for example images 
 and the [examples](https://github.com/r4gus/sugar-ray/tree/main/src/examples) folder for example programs.
 
-<img src="/images/sphere.jpg", alt="Sphere">
+![Sphere]("https://github.com/r4gus/tree/main/images/sphere.jpg")
 
 
 ### Built With
