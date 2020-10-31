@@ -13,7 +13,7 @@ use std::io::prelude::*;
 pub fn render_sphere(canvas_size: usize) -> std::io::Result<()> {
     let mut canvas = Canvas::new(canvas_size, canvas_size);
     let s = Sphere::new(); // New sphere at origin (0, 0, 0)
-    let color = Color::new(1.0, 0.0, 0.0); // Red
+    let color = Color::new(8.0, 5.0, 8.0); // Red
     let ray_origin = Point::new(0.0, 0.0, -5.0);
     let wall_z = 10.0;  // Distance from the origin to the wall behind the sphere
     let wall_size = 7.0; // width and heigth of the wall
