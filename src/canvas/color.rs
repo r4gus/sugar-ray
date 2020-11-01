@@ -91,6 +91,14 @@ impl ops::Mul<Color> for Color {
     }
 }
 
+impl ops::Mul<f64> for Color {
+    type Output = Self;
+
+    fn mul(self, rhs: f64) -> Self {
+        Self::new(self.r * rhs as f32, self.g * rhs as f32, self.b * rhs as f32)
+    }
+}
+
 impl cmp::PartialEq for Color {
     fn eq(&self, other: &Self) -> bool {
         ((self.r - other.r).abs() <= f32::EPSILON ) &&

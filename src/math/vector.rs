@@ -89,6 +89,37 @@ impl Vector {
                     self.z * vec.x - self.x * vec.z,
                     self.x * vec.y - self.y * vec.x)
     }
+    
+    /// Reflect the vector around a given normal.
+    ///
+    /// # Arguments
+    ///
+    /// * `normal` - A normal (e.g. a normal for a sphere)
+    ///
+    /// # Examples
+    ///
+    /// 1. Reflecting a vector approaching at 45 deg
+    /// ```
+    /// use sugar_ray::math::vector::Vector;
+    ///
+    /// let v = Vector::new(1.0, -1.0, 0.0);
+    /// let n = Vector::new(0.0, 1.0, 0.0);
+    ///
+    /// assert_eq!(Vector::new(1.0, 1.0, 0.0), v.reflect(&n));
+    /// ```
+    ///
+    /// 2. Reflecting a vector off a slanted surface
+    /// ```
+    /// use sugar_ray::math::vector::Vector;
+    ///
+    /// let v = Vector::new(0.0, -1.0, 0.0);
+    /// let n = Vector::new(2.0_f64.sqrt() / 2.0, 2.0_f64.sqrt() / 2.0, 0.0);
+    ///
+    /// assert_eq!(Vector::new(1.0000000000000002, 0.0000000000000002220446049250313, 0.0), v.reflect(&n));
+    /// ```
+    pub fn reflect(&self, normal: &Self) -> Self {
+        *self - (*normal * 2.0 * self.dot(normal))
+    }
 }
 
 /** The sum of two vectors.

@@ -3,27 +3,35 @@ use crate::math::{
     point::Point,
     vector::Vector,
 };
+use crate::materials::Material;
+use crate::canvas::color::Color;
 
+/// A Sphere
+///
+/// A sphere is always located at the origin with an radius of 1
+/// to ease the calculation of intersections with rays (this can
+/// be seen as kind of a "object space").
+///
+/// To adjust the location, size and rotations one can use
+/// transformations (those transformations can be seen as 
+/// a conversion from "object space" to "world space". The
+/// inverse of those transformations would do the oposite).
+///
+/// A sphere has a transformation assigned to it. By default
+/// this transformation is the identity matrix, i.e. there
+/// is no transformation assigned.
+///
+/// A sphere has also a material assigned to it. When a sphere
+/// is created a default material is used but it can be changed
+/// using the `set_material` method.
 #[derive(Debug, PartialEq)]
 pub struct Sphere {
     transform: Matrix,
+    material: Material,
 }
 
 impl Sphere {
     /// Create a new Sphere.
-    ///
-    /// A sphere is always located at the origin with an radius of 1
-    /// to ease the calculation of intersections with rays (this can
-    /// be seen as kind of a "object space").
-    ///
-    /// To adjust the location, size and rotations one can use
-    /// transformations (those transformations can be seen as 
-    /// a conversion from "object space" to "world space". The
-    /// inverse of those transformations would do the oposite).
-    ///
-    /// A sphere has a transformation assigned to it. By default
-    /// this transformation is the identity matrix, i.e. there
-    /// is no transformation assigned.
     ///
     /// # Examples
     /// 
@@ -31,15 +39,17 @@ impl Sphere {
     /// ```
     /// use sugar_ray::shapes::Sphere;
     /// use sugar_ray::math::matrix::Matrix;
+    /// use sugar_ray::materials::Material;
     ///
     /// let s: Sphere = Sphere::new();
     /// assert_eq!(Matrix::from_vec(vec![vec![1.0,0.0,0.0,0.0],
     ///                                  vec![0.0,1.0,0.0,0.0],
     ///                                  vec![0.0,0.0,1.0,0.0],
     ///                                  vec![0.0,0.0,0.0,1.0]]).unwrap(), *s.get_transform());
+    /// assert_eq!(Material::default(), *s.get_material());
     /// ```
     pub fn new() -> Self {
-        Self { transform: Matrix::identity() } 
+        Self { transform: Matrix::identity(), material: Material::default() } 
     }
     
     /// Return the assigned transfromation matrix.
@@ -47,7 +57,7 @@ impl Sphere {
         &self.transform
     }
     
-    /// Set a sphere's transformation
+    /// Set a sphere's transformation.
     ///
     /// # Arguments
     ///
@@ -67,6 +77,20 @@ impl Sphere {
     /// ```
     pub fn set_transform(&mut self, m: Matrix) {
         self.transform = m;
+    }
+    
+    /// Get the assigned material.
+    pub fn get_material(&self) -> &Material {
+        &self.material
+    }
+    
+    /// Set a new material for the sphere.
+    pub fn set_material(&mut self, m: Material) {
+        self.material = m;
+    }
+
+    pub fn set_material_color(&mut self, color: Color) {
+        self.material.set_color(color);
     }
     
     /// Calculate the (surface) normal of a sphere at a specific point.
